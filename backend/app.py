@@ -1,9 +1,10 @@
 import os
 from dotenv import load_dotenv
-from flask import Flask, request, jsonify, render_template, send_from_directory
+from flask import Flask, request, jsonify, render_template, send_from_directory, url_for, redirect
 from bson import ObjectId
 from flask_pymongo import PyMongo
 from flask_cors import CORS
+from pymongo.errors import ConnectionFailure
 
 load_dotenv()
 
@@ -19,7 +20,17 @@ CORS(app)
 
 @app.route("/")
 def index():
-    return send_from_directory(app.static_folder, "index.html")
+    try:
+        mongo.db.command("ping")
+        return send_from_directory(app.static_folder, "index.html")
+    except ConnectionFailure:
+        return redirect(url_for('error'))
+    
+
+# Handle errors
+@app.route('/error')
+def error():
+    return render_template("error.html", message="MongoDB connection failed! Please check the database server.")
 
 @app.errorhandler(404)
 def page_not_found(e):

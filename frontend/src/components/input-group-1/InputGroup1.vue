@@ -1,7 +1,7 @@
 <template>
    
     <div class="input-group mb-3">
-        <input @keypress="onKeyPress" v-model="value" type="text" class="form-control p-2" placeholder="Task item" aria-label="Task item" aria-describedby="button-addon2">
+        <input @keypress="onKeyPress" v-model.trim="value" type="text" class="form-control p-2" placeholder="Task item" aria-label="Task item" aria-describedby="button-addon2">
         <button @click="emitValue" class="btn btn-primary" type="button" id="button-addon2">Button</button>
     </div>
 
@@ -21,7 +21,8 @@ export default {
     },
     methods:{
         emitValue(){
-            this.$emit('create-task', this.value)
+            if(this.value != "")
+                this.$emit('create-task', this.value)
             this.value = ''
         },
         onKeyPress(event){

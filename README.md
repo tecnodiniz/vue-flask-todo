@@ -1,6 +1,5 @@
 # To-Do List Application
 This is a simple To-Do List Application built using Flask for the backend and Vue.js for the frontend. The frontend has been pre-built and is served through the Flask backend using the static directory.
----
 
 ## Project Structure
 
@@ -50,10 +49,12 @@ python -m venv venv
 ```
 pip install -r requirements.txt  
 ```
-4. Run the Flask application:
+4.  START MONGODB SERVICE!!!
+
+5. Run the Flask application:
 
 ```
-python app.py  
+python3 app.py # or flask run  
 ```
 
 # Frontend (Vue.js)
