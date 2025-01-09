@@ -17,7 +17,6 @@ app.config['MONGO_URI'] = 'mongodb://localhost:27017/todo'
 
 app.config['MONGO_URI'] = 'mongodb://localhost:27017/todo'
 
-
 CORS(app)
 
 mongo = PyMongo(app)
@@ -74,7 +73,7 @@ def tasks():
 @app.route('/tasks/<id>', methods=['GET'])
 def get_task(id):
     try:
-        if not ObjectId.isValid(id):
+        if not ObjectId.is_valid(id):
             return jsonify({'msg':'Id inválida'})
         
         data = mongo.db.list.find_one({'_id': ObjectId(id)})
@@ -93,7 +92,7 @@ def get_task(id):
 @app.route('/tasks/<id>', methods=['PUT'])
 def update_task(id):
     try:
-        if not ObjectId.isValid(id):
+        if not ObjectId.is_valid(id):
             return jsonify({'error': 'Id inválida'}),400
         
         data = request.json
@@ -114,7 +113,7 @@ def update_task(id):
 @app.route('/tasks/<id>', methods=['DELETE'])
 def delete_task(id):
     try:
-        if not ObjectId.isValid(id):
+        if not ObjectId.is_valid(id):
             return jsonify({'msg':'Id inválida'})
         
         result = mongo.db.list.delete_one({'_id': ObjectId(id)})
@@ -142,8 +141,15 @@ def delete_all():
         return jsonify({'erro': str(e)}), 500
     
 
-@app.route('/login', methods=['POST'])
-def login_user():
+
+# LOGIN PAGE
+@app.route('/login', methods=['GET'])
+def login_page():
+    return render_template('login.html')
+
+# AUTH
+@app.route('/auth', methods=['POST'])
+def auth_user():
     try:
         data = request.get_json()
         username = data.get('username')

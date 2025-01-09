@@ -1,7 +1,7 @@
 from bson import ObjectId
 import jwt
 from datetime import datetime, timedelta, timezone
-from flask import jsonify, request
+from flask import jsonify, request, redirect, url_for
 from functools import wraps
 import app
 
@@ -15,7 +15,6 @@ users = {
 
 #Create JWT Token
 def create_token(user):
-    print(user)
     expiration_time = datetime.now(timezone.utc) + timedelta(hours=1)
     payload = {
         'user_id': user['_id'],
@@ -35,7 +34,7 @@ def token_require(f):
         if 'Authorization' in request.headers:
             token = request.headers['Authorization'].split(' ')[1] # Bearer <token>
         if not token:
-            return jsonify({"message": "Token is missing!"}), 403
+            return redirect(url_for('login_page'))
         
         try:
             payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
@@ -51,7 +50,7 @@ def token_require(f):
             if user:
                 current_user = payload['username'] 
             else:
-                return jsonify({'msg': 'User not found in the database'})
+                return jsonify({'msg': 'User not found in the database'}), 404
 
 
         except jwt.ExpiredSignatureError:
