@@ -34,6 +34,7 @@ def index():
         return redirect(url_for('error'))
     
 
+
 # Handle errors
 @app.route('/error')
 def error():
@@ -44,37 +45,49 @@ def page_not_found(e):
     return render_template('404.html'), 404
 
 
+# ---------------------------START TASKS-----------------------------------------------------------------
 # POST TASK
 @app.route('/tasks', methods=['POST'])
+@jwt_required()
 def create_taks():
     try:
-        data = request.json
+        if validadeUser(get_jwt_identity()):
+            user_id = get_jwt_identity()
+            data = request.json
+            data["user_id"] = ObjectId(user_id)
 
-        if data:
-            result = mongo.db.list.insert_one(data)
-            return jsonify({'msg': 'Taks adicionada', 'id': str(result.inserted_id)}), 201
-        return jsonify({'erro':'O formato dos dados é inválido'}), 400
+            if data:
+                result = mongo.db.list.insert_one(data)
+                return jsonify({'msg': 'Taks adicionada', 'id': str(result.inserted_id)}), 201
+            return jsonify({'erro':'O formato dos dados é inválido'}), 400
+        return jsonify({'msg':'Inválid Token'}), 401
     except Exception as e:
         return jsonify({'error': str(e)})
 
 # GET ALL
 @app.route('/tasks')
+@jwt_required()
 def tasks():
     try:
-        cursor = mongo.db.list.find({})
-        tasks = list(cursor)
+        if validadeUser(get_jwt_identity()):
+            user_id = get_jwt_identity()
+            cursor = mongo.db.list.find({"user_id": ObjectId(user_id)})
+            tasks = list(cursor)
 
-        if tasks:
-            for task in tasks:
-                task['_id'] = str(task['_id'])
-        
-        return jsonify({'data':tasks}), 200
+            if tasks:
+                for task in tasks:
+                    task['_id'] = str(task['_id'])
+                    task['user_id'] = str(task['user_id'])
+            
+            return jsonify({'data':tasks}), 200
+        return jsonify({'msg': 'Invalid Token'}), 401
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
     
 # GET TASK
 @app.route('/tasks/<id>', methods=['GET'])
+@jwt_required()
 def get_task(id):
     try:
         if not ObjectId.is_valid(id):
@@ -86,7 +99,11 @@ def get_task(id):
             return jsonify({'msg': 'Task não encontrada'}), 404
         
         data['_id'] = str(data['_id'])
-        return jsonify({'task':data}), 200
+        data['user_id'] = str(data['user_id'])
+
+        if validadeUser(get_jwt_identity()) and get_jwt_identity() == data["user_id"]:
+            return jsonify({'task':data}), 200
+        return jsonify({'msg': 'Invalid Token'}), 401
         
     except Exception as e:
         return jsonify({'error': str(e)})
@@ -94,16 +111,19 @@ def get_task(id):
 
 # UPDATE TASK
 @app.route('/tasks/<id>', methods=['PUT'])
+@jwt_required()
 def update_task(id):
     try:
         if not ObjectId.is_valid(id):
             return jsonify({'error': 'Id inválida'}),400
-        
+    
         data = request.json
+ 
         if not data:
             return jsonify({'erro':'Nenhum dado inserido para atualização'}),400
 
-        result = mongo.db.list.update_one({'_id': ObjectId(id)}, {'$set':data})
+        if validadeUser(get_jwt_identity()):
+            result = mongo.db.list.update_one({'_id': ObjectId(id), 'user_id': ObjectId(get_jwt_identity())}, {'$set':data})
 
         if result.matched_count == 0:
             return jsonify({'erro':'Task não encontrada'}),404
@@ -115,12 +135,14 @@ def update_task(id):
 
 # DELETE TASK
 @app.route('/tasks/<id>', methods=['DELETE'])
+@jwt_required()
 def delete_task(id):
     try:
         if not ObjectId.is_valid(id):
             return jsonify({'msg':'Id inválida'})
         
-        result = mongo.db.list.delete_one({'_id': ObjectId(id)})
+        if validadeUser(get_jwt_identity()):
+            result = mongo.db.list.delete_one({'_id': ObjectId(id), 'user_id':ObjectId(get_jwt_identity())})
 
         if result.deleted_count == 0:
             return jsonify({'msg': 'Taks não encontrada'}), 404
@@ -133,9 +155,10 @@ def delete_task(id):
 
 # DELETE ALL
 @app.route('/tasks/reset', methods=['GET'])
+@jwt_required()
 def delete_all():
     try:
-        result = mongo.db.list.delete_many({})
+        result = mongo.db.list.delete_many({"user_id": ObjectId(get_jwt_identity())})
 
         if result.deleted_count == 0:
             return jsonify({'msg':'Nenhum item foi excluido'}),200
@@ -143,8 +166,11 @@ def delete_all():
     except Exception as e:
         return jsonify({'erro': str(e)}), 500
     
+# ---------------------------END TASKS-----------------------------------------------------------------
 
 
+
+# ---------------------------AUTHENTICATION-----------------------------------------------------------------
 # LOGIN PAGE
 @app.route('/login', methods=['GET'])
 def login_page():
@@ -177,6 +203,27 @@ def protected_route():
     current_user = get_jwt_identity()
    
     return jsonify({'message':f'Hello! This is a protected route.','user_id':current_user})
+
+
+def validadeUser(identity):
+    return bool(mongo.db.usuario.find_one({"_id": ObjectId(identity)}))
+
+# ---------------------------END AUTHENTICATION-----------------------------------------------------------------
+
+
+# ---------------------------START USERS-----------------------------------------------------------------
+
+@app.route('/users', methods=['POST'])
+def create_user():
+    try:
+        data = request.json
+        if data:
+            result = mongo.db.usuario.insert_one(data)
+            return jsonify({'msg': 'user succefuly created!','id': str(result.inserted_id)}), 201
+        return jsonify({'msg': 'Inválid format'}), 400
+            
+    except Exception as e:
+        return jsonify({'erro': str(e)}), 500
 
 
 if __name__ == '__main__':
