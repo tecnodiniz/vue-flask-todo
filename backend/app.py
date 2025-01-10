@@ -1,18 +1,21 @@
-import os
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify, render_template, send_from_directory, url_for, redirect
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from bson import ObjectId
 from flask_cors import CORS
-from auth import login, token_require
 from flask_pymongo import PyMongo
 from pymongo.errors import ConnectionFailure
-
+from datetime import timedelta
 
 load_dotenv()
 
 app = Flask('__name__', static_folder='static')
-app.config['MONGO_URI'] = 'mongodb://localhost:27017/todo'
 
+app.config['MONGO_URI'] = 'mongodb://localhost:27017/todo'
+app.config["JWT_SECRET_KEY"] = "SECRET"
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=30)
+
+jwt = JWTManager(app)
 # app.config['MONGO_URI'] = os.getenv('MONGO_URI')
 
 app.config['MONGO_URI'] = 'mongodb://localhost:27017/todo'
@@ -39,6 +42,7 @@ def error():
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html'), 404
+
 
 # POST TASK
 @app.route('/tasks', methods=['POST'])
@@ -129,7 +133,6 @@ def delete_task(id):
 
 # DELETE ALL
 @app.route('/tasks/reset', methods=['GET'])
-@token_require
 def delete_all():
     try:
         result = mongo.db.list.delete_many({})
@@ -152,10 +155,16 @@ def login_page():
 def auth_user():
     try:
         data = request.get_json()
-        username = data.get('username')
+        userlogin = data.get('username')
         password = data.get('password')
 
-        return login(username,password)
+        user = mongo.db.usuario.find_one({"user_login":userlogin, "pwd":password})
+
+        if user:
+            access_token = create_access_token(identity=str(user['_id']), )
+            return jsonify({'token': access_token}),200
+        
+        return jsonify({'error': 'Invalid credentials'}), 401
     except TypeError as te:
         return jsonify({f'Type error {str(te)}'})
     except Exception as e:
@@ -163,9 +172,12 @@ def auth_user():
 
 
 @app.route('/protected', methods=['GET'])
-@token_require
-def protected_route(current_user):
-    return jsonify({'message':f'Hello, {current_user}! This is a protected route.'})
+@jwt_required()
+def protected_route():
+    current_user = get_jwt_identity()
+   
+    return jsonify({'message':f'Hello! This is a protected route.','user_id':current_user})
+
 
 if __name__ == '__main__':
     app.run(debug=True)
