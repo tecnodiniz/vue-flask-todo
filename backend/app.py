@@ -226,5 +226,32 @@ def create_user():
         return jsonify({'erro': str(e)}), 500
 
 
+@app.route('/users/<login>', methods=['GET'])
+def get_user(login):
+    try:
+        user = mongo.db.usuario.find_one({'user_login': login})
+        if not user:
+            return jsonify({'msg': 'User not found'}), 404
+        
+        user['_id'] = str(user['_id'])
+        return jsonify({'user': user})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/users/<id>', methods=['PUT'])
+def update_user(id):
+    try:
+        if not ObjectId(id):
+            return jsonify({'msg': 'Invalid Id'}), 401
+        
+        data = request.json
+
+        result = mongo.db.usuario.update_one({'_id': ObjectId(id)}, {'$set': data})
+
+        if result.matched_count == 0:
+            return jsonify({'msg': 'user not found'}), 404
+        return jsonify({'msg': 'Password updated'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 if __name__ == '__main__':
     app.run(debug=True)
