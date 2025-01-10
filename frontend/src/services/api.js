@@ -7,19 +7,17 @@ const api = axios.create({
         "Content-Type":"application/json"
     }
 });
-function checkConnection(){
-    api.get("").then((response) =>{
-        console.log(response.data);
-    }).catch((error) => {
-        const { code } = error;
+// function checkConnection(){
+//     api.get("").then((response) =>{
+//         console.log(response.data);
+//     }).catch((error) => {
+//         const { code } = error;
 
-        if(code === "ERR_NETWORK")
-            alert("RODE A APLICAÇÃO BACKEND PRIMEIRO!")
+//         if(code === "ERR_NETWORK")
+//             alert("RODE A APLICAÇÃO BACKEND PRIMEIRO!")
         
-    })
-}
-
-checkConnection();
+//     })
+// }
 
 export const new_task = (data) => api.post("/tasks", data);
 export const get_task = () => api.get("/tasks");

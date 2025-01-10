@@ -36,7 +36,7 @@
   </template>
   
   <script>
-import { delete_all, delete_task, get_task, new_task, update_task } from '@/services/api';
+import { delete_all, delete_task, update_task, get_task } from '@/services/api';
 import InputGroup1 from './input-group-1/InputGroup1.vue';
 import TodoItems from './todoItems/TodoItems.vue';
   
@@ -49,28 +49,41 @@ import TodoItems from './todoItems/TodoItems.vue';
     },
     data(){
       return{
-        tasks: []
+        tasks: [],
+        token: '',
+        itens: 0
       }
     }, 
     mounted(){
-      get_task()
-        .then((response) =>{
-          this.tasks = response.data["data"];
-        })
-        .catch((error) =>{
-          console.log("Error fetching tasks", error);
-        });
+      const data = localStorage.getItem('task');
+      if(data){
+        this.tasks = JSON.parse(data);
+        this.itens = this.tasks.length;
+      }
+      
+
+      
+      // get_task()
+      //   .then((response) =>{
+      //     this.tasks = response.data["data"];
+      //   })
+      //   .catch((error) =>{
+      //     console.log("Error fetching tasks", error);
+      //   });
     },
     methods:{
       createTask(task){
-       const data = {task: task, done:false};
-        new_task(data)
-          .then((response) =>{
-            console.log("msg", response.data);
-            this.getTask();
-          }).catch((error) =>{
-            console.log("error",error);
-          });
+        this.itens ++;
+       const data = {_id:this.itens,task: task, done:false};
+       this.tasks.push(data);
+       localStorage.setItem('task',JSON.stringify(this.tasks));
+        // new_task(data)
+        //   .then((response) =>{
+        //     console.log("msg", response.data);
+        //     this.getTask();
+        //   }).catch((error) =>{
+        //     console.log("error",error);
+        //   });
 
       },
       getTask(){
@@ -82,24 +95,46 @@ import TodoItems from './todoItems/TodoItems.vue';
           console.log("Error fetching tasks", error);
         });
       },
+      
       updateTask(obj){
-        update_task(obj.id, obj.update)
-          .then((response) => {
-            console.log("msg", response.data)
-            this.getTask();
-          }).catch((error) =>{
-            console.log("Erro ao atualizar task",error);
-            this.getTask();
-          });
+        const token = localStorage.getItem("token")
+        console.log(token)
+        
+         
+         if(token){
+          update_task(obj.id, obj.update)
+            .then((response) => {
+              console.log("msg", response.data)
+              this.getTask();
+            }).catch((error) =>{
+              console.log("Erro ao atualizar task",error);
+              this.getTask();
+            });
+
+         }else
+          localStorage.setItem('task',JSON.stringify(this.tasks));
+  
+      
       },
       deleteTask(id){
-        delete_task(id)
+        const data = localStorage.getItem("token");
+        if(data){
+          delete_task(id)
           .then((response) =>{
             console.log("msg", response.data);
             this.getTask();
           }).catch((error) =>{
             console.log("error", error);
           });
+        }
+        else{
+          const index = this.tasks.findIndex(item => item._id == id)
+          console.log(index)
+          this.tasks.splice(index, 1);
+          localStorage.setItem("task", JSON.stringify(this.tasks))
+         
+        }
+       
       },
       deleteAll(){
         delete_all()
