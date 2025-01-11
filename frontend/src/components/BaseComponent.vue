@@ -1,9 +1,18 @@
 <template>
   <!-- @keyup.ctrl.delete="tasks=[]" -->
+   <div v-if="!isUserLoggedIn">
+    <LoginComponent @send-data="handleLogin"/>
+   </div>
+   <div v-if="isUserLoggedIn">
+    <button @click="logout">Logout</button>
+   </div>
+ 
     <div class="col-12" >
       <div class="card col-10 col-lg-3 col-md-6 col-sm-6">
         <div class="card-header">
           <h3><strong>TO-DO LIST</strong></h3>
+          <p v-if="isUserLoggedIn">Usuário logado: {{ userName }}</p>
+
         </div>
         <InputGroup1 @create-task="createTask" />
         <div class="card-body">
@@ -36,55 +45,76 @@
   </template>
   
   <script>
-import { delete_all, delete_task, update_task, get_task } from '@/services/api';
+import {delete_all, delete_task, new_task, update_task, get_task, user_login, get_user } from '@/services/api';
 import InputGroup1 from './input-group-1/InputGroup1.vue';
 import TodoItems from './todoItems/TodoItems.vue';
-  
+import LoginComponent from './loginComponent/LoginComponent.vue';  
   
   export default {
     name: 'BaseComponent',
     components: {
       InputGroup1,
       TodoItems,
+      LoginComponent,
     },
     data(){
       return{
         tasks: [],
-        token: '',
-        itens: 0
+        itens: 0,
+        userName: localStorage.getItem("userName") || ""
       }
     }, 
-    mounted(){
-      const data = localStorage.getItem('task');
-      if(data){
-        this.tasks = JSON.parse(data);
-        this.itens = this.tasks.length;
+    computed:{
+      isUserLoggedIn(){
+        return !!this.userName
       }
-      
+
+
+    },
+    mounted(){
+      if(this.verifyToken()){
+            get_task()
+      .then((response) =>{
+        this.tasks = response.data["data"];
+        console.log(this.tasks)
+      })
+      .catch((error) =>{
+        console.log("Error fetching tasks", error);
+      });
+
+      }
+      else{
+        const data = localStorage.getItem('task');
+        if(data){
+          this.tasks = JSON.parse(data);
+          this.itens = this.tasks.length;
+        }
+      }
+    
 
       
-      // get_task()
-      //   .then((response) =>{
-      //     this.tasks = response.data["data"];
-      //   })
-      //   .catch((error) =>{
-      //     console.log("Error fetching tasks", error);
-      //   });
+
     },
     methods:{
       createTask(task){
-        this.itens ++;
-       const data = {_id:this.itens,task: task, done:false};
-       this.tasks.push(data);
-       localStorage.setItem('task',JSON.stringify(this.tasks));
-        // new_task(data)
-        //   .then((response) =>{
-        //     console.log("msg", response.data);
-        //     this.getTask();
-        //   }).catch((error) =>{
-        //     console.log("error",error);
-        //   });
+        if(this.verifyToken()){
+          const data = {task: task, done:false};
+          new_task(data)
+          .then((response) =>{
+            console.log("msg", response.data);
+            this.getTask();
+          }).catch((error) =>{
+            console.log("error",error);
+          });
 
+        }else{
+            this.itens ++;
+            const data = {_id:this.itens,task: task, done:false};
+            this.tasks.push(data);
+            localStorage.setItem('task',JSON.stringify(this.tasks));
+        }
+        
+    
       },
       getTask(){
         get_task()
@@ -97,11 +127,7 @@ import TodoItems from './todoItems/TodoItems.vue';
       },
       
       updateTask(obj){
-        const token = localStorage.getItem("token")
-        console.log(token)
-        
-         
-         if(token){
+         if(this.verifyToken()){
           update_task(obj.id, obj.update)
             .then((response) => {
               console.log("msg", response.data)
@@ -117,8 +143,8 @@ import TodoItems from './todoItems/TodoItems.vue';
       
       },
       deleteTask(id){
-        const data = localStorage.getItem("token");
-        if(data){
+       
+        if(this.verifyToken()){
           delete_task(id)
           .then((response) =>{
             console.log("msg", response.data);
@@ -137,13 +163,48 @@ import TodoItems from './todoItems/TodoItems.vue';
        
       },
       deleteAll(){
-        delete_all()
+        
+        if(this.verifyToken()){
+          delete_all()
           .then((response) =>{
             console.log("msg", response.data);
             this.getTask();
           }).catch((error) => {
             console.log("error", error);
           });
+        }else{
+          this.tasks = []
+        }
+      },
+      getUser(data){
+        get_user(data)
+          .then((response) =>{
+            const { data } = response;
+            localStorage.setItem("userName", data.user.name)
+            location.reload();
+          }).catch((error) => {
+            return error
+          })
+      },
+      verifyToken(){
+        return localStorage.getItem("token");
+      },
+      handleLogin(data){
+        console.log(data)
+        user_login(data)
+        .then((response) => {
+          const token = JSON.stringify(response.data.token)
+          localStorage.setItem("token",token)
+          this.getUser(data.username)
+         
+
+        }).catch((error) => alert(error.code));
+
+      },
+      logout(){
+        localStorage.removeItem("token")
+        localStorage.removeItem("userName")
+        location.reload();
       }
      
     }
