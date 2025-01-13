@@ -22,6 +22,7 @@ const api = axios.create({
 
 export const user_login = (data) => api.post("/auth", data);
 export const get_user = (user) => api.get(`/users/${user}`);
+export const create_user = (data) => api.post('/users', data);
 
 export const new_task = (data) => api.post("/tasks", data, {
     headers:{
