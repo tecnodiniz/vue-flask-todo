@@ -5,7 +5,7 @@ from bson import ObjectId
 from flask_cors import CORS
 from flask_pymongo import PyMongo
 from pymongo.errors import ConnectionFailure
-from datetime import timedelta
+
 
 load_dotenv()
 
@@ -18,7 +18,6 @@ app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=30)
 jwt = JWTManager(app)
 # app.config['MONGO_URI'] = os.getenv('MONGO_URI')
 
-app.config['MONGO_URI'] = 'mongodb://localhost:27017/todo'
 
 CORS(app)
 
