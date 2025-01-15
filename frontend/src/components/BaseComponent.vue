@@ -16,7 +16,7 @@
       <div class="card col-10 col-lg-3 col-md-6 col-sm-6">
         <div class="card-header">
           <h3><strong>TO-DO LIST</strong></h3>
-          <p v-if="isUserLoggedIn">Usuário logado: {{ userName }}</p>
+          <p v-if="isUserLoggedIn">Usuário logado: {{ user.name }}</p>
 
         </div>
         <InputGroup1 @create-task="createTask" />
@@ -50,7 +50,7 @@
   </template>
   
   <script>
-import {delete_all, delete_task, new_task, update_task, get_task, user_login, get_user } from '@/services/api';
+import {delete_all, delete_task, new_task, update_task, get_task, user_login } from '@/services/api';
 import InputGroup1 from './input-group-1/InputGroup1.vue';
 import TodoItems from './todoItems/TodoItems.vue';
 import LoginComponent from './loginComponent/LoginComponent.vue';  
@@ -66,12 +66,12 @@ import LoginComponent from './loginComponent/LoginComponent.vue';
       return{
         tasks: [],
         itens: 0,
-        userName: localStorage.getItem("userName") || ""
+        user: JSON.parse(localStorage.getItem("user"))  || ""
       }
     }, 
     computed:{
       isUserLoggedIn(){
-        return !!this.userName
+        return !!this.user
       }
 
 
@@ -80,28 +80,24 @@ import LoginComponent from './loginComponent/LoginComponent.vue';
       if(this.verifyToken()){
             get_task()
       .then((response) =>{
-        this.tasks = response.data["data"];
-        console.log(this.tasks)
+        this.tasks = response.data["data"]
       })
       .catch((error) =>{
         console.log("Error fetching tasks", error);
         localStorage.removeItem("token")
-        localStorage.removeItem("userName")
+        localStorage.removeItem("user")
         location.reload()
       });
 
       }
       else{
         const data = localStorage.getItem('task');
-        localStorage.removeItem("userName")
+        localStorage.removeItem("user")
         if(data){
           this.tasks = JSON.parse(data);
           this.itens = this.tasks.length;
         }
       }
-    
-
-      
 
     },
     methods:{
@@ -115,7 +111,7 @@ import LoginComponent from './loginComponent/LoginComponent.vue';
           }).catch((error) =>{
             console.log("error",error);
             localStorage.removeItem("token")
-            localStorage.removeItem("userName")
+            localStorage.removeItem("user")
             location.reload()
           });
 
@@ -129,16 +125,27 @@ import LoginComponent from './loginComponent/LoginComponent.vue';
     
       },
       getTask(){
-        get_task()
-        .then((response) =>{
-          this.tasks = response.data["data"];
-        })
-        .catch((error) =>{
-          console.log("Error fetching tasks", error);
-          localStorage.removeItem("token")
-          localStorage.removeItem("userName")
-          location.reload()
-        });
+        if(this.verifyToken()){
+            get_task()
+      .then((response) =>{
+        this.tasks = response.data["data"]
+      })
+      .catch((error) =>{
+        console.log("Error fetching tasks", error);
+        localStorage.removeItem("token")
+        localStorage.removeItem("user")
+        location.reload()
+      });
+
+      }
+      else{
+        const data = localStorage.getItem('task');
+        localStorage.removeItem("user")
+        if(data){
+          this.tasks = JSON.parse(data);
+          this.itens = this.tasks.length;
+        }
+      }
       },
       
       updateTask(obj){
@@ -148,8 +155,10 @@ import LoginComponent from './loginComponent/LoginComponent.vue';
               console.log("msg", response.data)
               this.getTask();
             }).catch((error) =>{
-              console.log("Erro ao atualizar task",error);
-              this.getTask();
+            console.log("error", error);
+            localStorage.removeItem("token")
+            localStorage.removeItem("user")
+            location.reload()
             });
 
          }else
@@ -158,7 +167,6 @@ import LoginComponent from './loginComponent/LoginComponent.vue';
       
       },
       deleteTask(id){
-       
         if(this.verifyToken()){
           delete_task(id)
           .then((response) =>{
@@ -167,7 +175,7 @@ import LoginComponent from './loginComponent/LoginComponent.vue';
           }).catch((error) =>{
             console.log("error", error);
             localStorage.removeItem("token")
-            localStorage.removeItem("userName")
+            localStorage.removeItem("user")
             location.reload()
           });
         }
@@ -190,7 +198,7 @@ import LoginComponent from './loginComponent/LoginComponent.vue';
           }).catch((error) => {
             console.log("error", error);
             localStorage.removeItem("token")
-            localStorage.removeItem("userName")
+            localStorage.removeItem("user")
             location.reload()
           });
         }else{
@@ -198,14 +206,15 @@ import LoginComponent from './loginComponent/LoginComponent.vue';
         }
       },
       getUser(data){
-        get_user(data)
-          .then((response) =>{
-            const { data } = response;
-            localStorage.setItem("userName", data.user.name)
-            location.reload();
-          }).catch((error) => {
-            return error
-          })
+        return data
+        // get_user(data)
+        //   .then((response) =>{
+        //     const { data } = response;
+        //     localStorage.setItem("user", data.user.name)
+        //     location.reload();
+        //   }).catch((error) => {
+        //     return error
+        //   })
       },
       verifyToken(){
         return localStorage.getItem("token");
@@ -213,11 +222,12 @@ import LoginComponent from './loginComponent/LoginComponent.vue';
       handleLogin(data){
         user_login(data)
         .then((response) => {
-          const token = JSON.stringify(response.data.token)
-          localStorage.setItem("token",token)
-          this.getUser(data.username)
-         
-
+          const {token, user} = response.data
+          localStorage.setItem("token", token)
+          localStorage.setItem("user", JSON.stringify(user))
+          location.reload()
+          
+       
         }).catch((error) => {
           alert(error.code)}
           
@@ -226,7 +236,7 @@ import LoginComponent from './loginComponent/LoginComponent.vue';
       },
       logout(){
         localStorage.removeItem("token")
-        localStorage.removeItem("userName")
+        localStorage.removeItem("user")
         location.reload();
       }
      

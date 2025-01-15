@@ -2,7 +2,6 @@ from flask import Flask, send_from_directory
 from app.extensions import jwt, mongo
 from app.routes import register_routes
 from app.main.routes import main_bp
-from flask_cors import CORS
 
 
 def create_app():
@@ -20,7 +19,7 @@ def create_app():
     #Register blueprints
     register_routes(app)
 
-    CORS(app)
+   
     
     return app
 

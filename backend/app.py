@@ -252,5 +252,6 @@ def update_user(id):
         return jsonify({'msg': 'Password updated'}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    
 if __name__ == '__main__':
     app.run(debug=True)

@@ -8,48 +8,37 @@ const api = axios.create({
     }
 });
 
-// function checkConnection(){
-//     api.get("").then((response) =>{
-//         console.log(response.data);
-//     }).catch((error) => {
-//         const { code } = error;
+export const user_login = (data) => api.post("/user/auth", data);
 
-//         if(code === "ERR_NETWORK")
-//             alert("RODE A APLICAÇÃO BACKEND PRIMEIRO!")
-        
-//     })
-// }
+export const get_user = (id) => api.get(`/user/${id}`);
+export const create_user = (data) => api.post('/user/new', data);
 
-export const user_login = (data) => api.post("/auth", data);
-export const get_user = (user) => api.get(`/users/${user}`);
-export const create_user = (data) => api.post('/users', data);
-
-export const new_task = (data) => api.post("/tasks", data, {
+export const new_task = (data) => api.post("/task/new", data, {
     headers:{
-        Authorization: `Bearer ${JSON.parse(localStorage.getItem("token"))}`,
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
     }
 });
 
-export const get_task = () => api.get("/tasks", {
+export const get_task = () => api.get("/task/", {
     headers:{
-        Authorization: `Bearer ${JSON.parse(localStorage.getItem("token"))}`,
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
     }
 });
 
-export const update_task = (id, data) => api.put(`/tasks/${id}`,data, {
+export const update_task = (id, data) => api.put(`/task/${id}`,data, {
     headers:{
-        Authorization: `Bearer ${JSON.parse(localStorage.getItem("token"))}`,
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
     }
 });
-export const delete_task = (id) => api.delete(`/tasks/${id}`, {
+export const delete_task = (id) => api.delete(`/task/${id}`, {
     headers:{
-        Authorization: `Bearer ${JSON.parse(localStorage.getItem("token"))}`,
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
     }
 });
 
-export const delete_all = () => api.get("/tasks/reset", {
+export const delete_all = () => api.get("/task/tasks/reset", {
     headers:{
-        Authorization: `Bearer ${JSON.parse(localStorage.getItem("token"))}`,
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
     }
 });
 
