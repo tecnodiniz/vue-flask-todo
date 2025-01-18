@@ -1,11 +1,11 @@
 <template>
   <v-container>
-    <v-sheet color="dark" width="400">
+    <v-sheet color="dark" width="400" rounded>
       <div class="card">
         <div class="card-header d-flex">
           <v-text-field
             v-model="item"
-            label="Label"
+            label="Task"
             variant="underlined"
             clearable
             @keyup.enter="addItem"
@@ -17,16 +17,22 @@
         <div class="card-body">
           <v-checkbox
             v-for="(i, index) in items"
+            v-model="i.done"
             :key="index"
-            :label="i"
+            :label="i.task"
             class="ma-0"
             density="compact"
+            hide-details
+            :class="{ done: i.done }"
           >
           </v-checkbox>
         </div>
 
-        <div class="card-footer d-flex">
-          <v-btn :icon="IconGarbage" variant="plain"></v-btn>
+        <div class="card-footer d-flex justify-space-between align-center">
+          <div>
+            <span>Tasks: {{ itemsDone.length }}</span>
+          </div>
+          <v-btn :icon="IconGarbage" variant="plain" @click="items.splice(0, items.length)"></v-btn>
         </div>
       </div>
     </v-sheet>
@@ -35,17 +41,20 @@
 
 <script setup>
 import IconAdd from '../icons/IconAdd.vue'
-import { ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import IconGarbage from '../icons/IconGarbage.vue'
 
-const items = ref([])
+const items = reactive([])
 const item = ref('')
 const rule = ref({ required: (value) => !!value || 'Field required' })
-// const rule = reactive({ required: (value) => !!value || 'Field required' })
+
+const itemsDone = computed(() => {
+  return items.filter((item) => item.done == false)
+})
 
 const addItem = () => {
   if (item.value.trim()) {
-    items.value.push(item.value.trim())
+    items.push({ task: item.value, done: false })
     item.value = ''
   }
 }
@@ -55,6 +64,9 @@ const addItem = () => {
 .card {
   padding: 1rem;
   border-radius: 16px;
+}
+.card-chips {
+  overflow: auto;
 }
 .card-header {
   padding: 2rem;
@@ -67,5 +79,9 @@ const addItem = () => {
 }
 .card-footer {
   padding: 1rem;
+}
+
+.done {
+  text-decoration: line-through;
 }
 </style>
