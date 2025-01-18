@@ -1,41 +1,35 @@
-# vue-todo-2
-## functional To-Do List project using Vue.js.
+# frontend
 
-* Dynamic functionality for task management using v-for.
-* State control for checkboxes with data binding (v-model).
-* Allows individual task marking/unmarking with style updates.
-* Minimalist design with CSS classes for visual feedback.
-* Component-based structure for reusability and scalability.
+This template should help get you started developing with Vue 3 in Vite.
 
+## Recommended IDE Setup
 
-## functional To-Do List project using Vue.js.
+[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
 
-* Dynamic functionality for task management using v-for.
-* State control for checkboxes with data binding (v-model).
-* Allows individual task marking/unmarking with style updates.
-* Minimalist design with CSS classes for visual feedback.
-* Component-based structure for reusability and scalability.
+## Customize configuration
 
+See [Vite Configuration Reference](https://vite.dev/config/).
 
-## Project setup
-```
+## Project Setup
+
+```sh
 npm install
 ```
 
-### Compiles and hot-reloads for development
-```
-npm run serve
+### Compile and Hot-Reload for Development
+
+```sh
+npm run dev
 ```
 
-### Compiles and minifies for production
-```
+### Compile and Minify for Production
+
+```sh
 npm run build
 ```
 
-### Lints and fixes files
-```
+### Lint with [ESLint](https://eslint.org/)
+
+```sh
 npm run lint
 ```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
