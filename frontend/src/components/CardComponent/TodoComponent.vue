@@ -16,23 +16,26 @@
 
         <div class="card-body">
           <v-checkbox
-            v-for="(i, index) in items"
-            v-model="i.done"
+            v-for="(i, index) in todos"
             :key="index"
+            v-model="i.done"
             :label="i.task"
             class="ma-0"
             density="compact"
             hide-details
             :class="{ done: i.done }"
+            @change="() => updateItem(i)"
+            :append-icon="IconCross"
+            @click:append="deleteItem(i._id)"
           >
           </v-checkbox>
         </div>
 
         <div class="card-footer d-flex justify-space-between align-center">
           <div>
-            <span>Tasks: {{ itemsDone.length }}</span>
+            <span>Tasks: {{ todos.filter((task) => task.done == false).length }}</span>
           </div>
-          <v-btn :icon="IconGarbage" variant="plain" @click="items.splice(0, items.length)"></v-btn>
+          <v-btn :icon="IconGarbage" variant="plain"></v-btn>
         </div>
       </div>
     </v-sheet>
@@ -41,22 +44,33 @@
 
 <script setup>
 import IconAdd from '../icons/IconAdd.vue'
-import { computed, reactive, ref } from 'vue'
+import IconCross from '../icons/IconCross.vue'
 import IconGarbage from '../icons/IconGarbage.vue'
+import { ref } from 'vue'
+const emit = defineEmits(['add-item', 'update-item', 'delete-item'])
 
-const items = reactive([])
+defineProps({
+  todos: {
+    type: Array,
+    required: true,
+  },
+})
+
 const item = ref('')
 const rule = ref({ required: (value) => !!value || 'Field required' })
 
-const itemsDone = computed(() => {
-  return items.filter((item) => item.done == false)
-})
-
 const addItem = () => {
   if (item.value.trim()) {
-    items.push({ task: item.value, done: false })
-    item.value = ''
+    emit('add-item', item.value)
   }
+}
+
+const updateItem = (task) => {
+  emit('update-item', task)
+}
+
+const deleteItem = (id) => {
+  emit('delete-item', id)
 }
 </script>
 
