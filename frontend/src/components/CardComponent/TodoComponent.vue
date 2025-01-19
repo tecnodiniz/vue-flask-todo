@@ -35,7 +35,7 @@
           <div>
             <span>Tasks: {{ todos.filter((task) => task.done == false).length }}</span>
           </div>
-          <v-btn :icon="IconGarbage" variant="plain"></v-btn>
+          <v-btn :icon="IconGarbage" variant="plain" @click="clearTodos"></v-btn>
         </div>
       </div>
     </v-sheet>
@@ -47,7 +47,7 @@ import IconAdd from '../icons/IconAdd.vue'
 import IconCross from '../icons/IconCross.vue'
 import IconGarbage from '../icons/IconGarbage.vue'
 import { ref } from 'vue'
-const emit = defineEmits(['add-item', 'update-item', 'delete-item'])
+const emit = defineEmits(['add-item', 'update-item', 'delete-item', 'delete-all'])
 
 defineProps({
   todos: {
@@ -71,6 +71,9 @@ const updateItem = (task) => {
 
 const deleteItem = (id) => {
   emit('delete-item', id)
+}
+const clearTodos = () => {
+  emit('delete-all', true)
 }
 </script>
 
