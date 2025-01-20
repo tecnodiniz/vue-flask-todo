@@ -83,8 +83,7 @@ const updateItem = (task) => {
         getTodos()
       })
       .catch((error) => console.log(error))
-  }
-  setTodos()
+  } else setTodos()
 }
 
 const deleteItem = (id) => {
