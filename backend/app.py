@@ -25,16 +25,17 @@ CORS(app)
 mongo = PyMongo(app)
 
 
-@app.route('/')
-def index():
-    try:
+
+@app.route("/", defaults={"path": ""})
+@app.route("/<path:path>")
+def serve_static_files(path):
+    if path == "" or path == "index.html":
         mongo.db.command('ping')
-        return send_from_directory(app.static_folder, 'index.html')
-    except ConnectionFailure:
-        return redirect(url_for('error'))
+        return send_from_directory(app.static_folder, "index.html")
+    else:
+        return send_from_directory(app.static_folder, path)
+
     
-
-
 # Handle errors
 @app.route('/error')
 def error():
