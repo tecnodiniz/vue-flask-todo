@@ -1,0 +1,14 @@
+{
+    "users":[
+        {
+            "name":"Jonh Doe",
+            "user_login":"john_doe",
+            "pwd":"doe12345"
+        },
+        {
+            "name":"Jane Smith",
+            "user_login":"jane_smith",
+            "pwd":"smith123"
+        }
+    ]
+}

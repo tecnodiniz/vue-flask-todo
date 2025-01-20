@@ -43,7 +43,14 @@ MONGO_URI=<your_mongodb_connection_string>
 ```
 Replace `<your_mongodb_connection_string>` with your MongoDB URI.
 
-### 3. Run the Application
+### 3. Parse Users
+You can create your users at database = {"name": "User Name", "user_login": "userlogin", "pwd":"***"} or, just run:
+```
+python parser.py
+```
+- Don't forget to check udata.json to see available users.
+
+### 3.1. Run the Application
 Start the Flask server:
 ```bash
 python run.py
