@@ -11,11 +11,14 @@
       @delete-all="deleteAll"
     />
   </v-container>
+
+  <DialogComponent :msg="errorMessage" :dialog="dialog" @close="dialog = false" />
 </template>
 
 <script setup>
 import LoginComponent from '@/components/LoginComponent.vue'
 import TodoComponent from '@/components/CardComponent/TodoComponent.vue'
+import DialogComponent from '@/components/DialogComponent.vue'
 import {
   delete_all,
   delete_task,
@@ -27,11 +30,12 @@ import {
 } from '@/services/api'
 import { onMounted, reactive, ref } from 'vue'
 
+const dialog = ref(false)
 const todos = reactive([])
 const username = ref('')
 const loged = ref(false)
 // const error = ref(false)
-// const errorMessage = ref('')
+const errorMessage = ref('')
 
 onMounted(() => {
   if (localStorage.getItem('token')) {
@@ -117,7 +121,12 @@ const userLogin = (user) => {
       localStorage.setItem('token', JSON.stringify(token))
       getUser(user.username)
     })
-    .catch((error) => console.log(error.message))
+    .catch((error) => {
+      if (error.message == 'Network Error') {
+        errorMessage.value = error.message
+        dialog.value = true
+      } else console.log(error.message)
+    })
 }
 
 const getUser = (login) => {
