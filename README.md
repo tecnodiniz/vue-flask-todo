@@ -6,24 +6,46 @@ This is a simple To-Do List Application built using Flask for the backend and Vu
 ```
 /To-do
 ├── backend
-│   ├── static
-│   │   ├── css
-│   │   ├── fonts
-│   │   └── js
-│   └── templates
-└── frontend
-    ├── dist
-    │   ├── css
-    │   ├── fonts
-    │   └── js
-    ├── public
-    └── src
-        ├── assets
-        │   └── css
-        ├── components
-        │   ├── input-group-1
-        │   └── todoItems
-        └── services
+├── app
+│   ├── config.py             - Server Config
+│   ├── extensions.py         - Manage extensions like mongo and jwt
+│   ├── __init__.py           - Initialize app
+│   ├── main
+│   │   └── routes.py         - Manage templates and static route
+│   ├── routes                - Blueprint routes
+│   │   ├── __init__.py
+│   │   ├── task.py
+│   │   └── user.py
+│   ├── services              - Utilities methods
+│   │   └── utils.py
+│   ├── static                - Front end builded files
+│   │   ├── assets
+│   │   ├── favicon.ico
+│   │   └── index.html
+│   └── templates            
+│       ├── 404.html
+│       └── error.html
+├── README.md
+├── requiriments.txt
+└── run.py                  - Run app
+/frontend                   - Vue 
+├── eslint.config.js
+├── index.html
+├── jsconfig.json
+├── package.json
+├── package-lock.json
+├── public
+│   └── favicon.ico
+├── README.md
+├── src
+│   ├── App.vue
+│   ├── assets
+│   ├── components
+│   ├── main.js
+│   ├── router
+│   ├── services
+│   └── views
+└── vite.config.js
 ```
 ## Requirements
 - Python (version 3.8 or higher)
@@ -54,7 +76,7 @@ pip install -r requirements.txt
 5. Run the Flask application:
 
 ```
-python3 app.py # or flask run  
+python3 run.py 
 ```
 
 # Frontend (Vue.js)
@@ -76,7 +98,7 @@ npm run build
 ```
 4. Copy the built files to the static directory in the backend:
 ```
-cp -r dist/* ../backend/static/  
+cp -r dist/* ../backend/app/static  
 ```
 5. Accessing the Application
 
