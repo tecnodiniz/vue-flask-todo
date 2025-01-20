@@ -1,6 +1,6 @@
 <template>
-  <v-container>
-    <v-sheet color="dark" width="400" rounded>
+  <v-col cols="12" md="6" sm="12" class="mx-auto">
+    <v-sheet color="dark" rounded>
       <div class="card">
         <div class="card-header d-flex">
           <v-text-field
@@ -39,7 +39,7 @@
         </div>
       </div>
     </v-sheet>
-  </v-container>
+  </v-col>
 </template>
 
 <script setup>
@@ -62,6 +62,7 @@ const rule = ref({ required: (value) => !!value || 'Field required' })
 const addItem = () => {
   if (item.value.trim()) {
     emit('add-item', item.value)
+    item.value = ''
   }
 }
 

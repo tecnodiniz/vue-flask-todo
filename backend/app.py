@@ -79,7 +79,7 @@ def tasks():
                     task['_id'] = str(task['_id'])
                     task['user_id'] = str(task['user_id'])
             
-            return jsonify({'data':tasks}), 200
+            return jsonify({'tasks':tasks}), 200
         return jsonify({'msg': 'Invalid Token'}), 401
 
     except Exception as e:
@@ -171,10 +171,7 @@ def delete_all():
 
 
 # ---------------------------AUTHENTICATION-----------------------------------------------------------------
-# LOGIN PAGE
-@app.route('/login', methods=['GET'])
-def login_page():
-    return render_template('login.html')
+
 
 # AUTH
 @app.route('/auth', methods=['POST'])
@@ -204,7 +201,7 @@ def protected_route():
    
     return jsonify({'message':f'Hello! This is a protected route.','user_id':current_user})
 
-
+# Verify if token is assign to a user
 def validadeUser(identity):
     return bool(mongo.db.usuario.find_one({"_id": ObjectId(identity)}))
 
@@ -226,15 +223,21 @@ def create_user():
         return jsonify({'erro': str(e)}), 500
 
 
-@app.route('/users/<login>', methods=['GET'])
-def get_user(login):
+
+@app.route('/users', methods=['GET'])
+@jwt_required()
+def get_username():
     try:
-        user = mongo.db.usuario.find_one({'user_login': login})
-        if not user:
-            return jsonify({'msg': 'User not found'}), 404
-        
-        user['_id'] = str(user['_id'])
-        return jsonify({'user': user})
+        login = request.args.get('login', default=None)
+        if(validadeUser(get_jwt_identity())):
+            user = mongo.db.usuario.find_one({'user_login': login, '_id': ObjectId(get_jwt_identity())})
+            if not user:
+                return jsonify({'msg': 'User not found'}), 404
+            
+            user['_id'] = str(user['_id'])
+            
+            return jsonify({'user': user['name']})
+        return jsonify({'msg': 'Inválid token'}), 400
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
