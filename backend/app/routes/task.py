@@ -40,7 +40,7 @@ def get_tasks():
                     task['_id'] = str(task['_id'])
                     task['user_id'] = str(task['user_id'])
             
-            return jsonify({'data':tasks}), 200
+            return jsonify({'tasks':tasks}), 200
         return jsonify({'msg': 'Invalid Token'}), 401
 
     except Exception as e:
