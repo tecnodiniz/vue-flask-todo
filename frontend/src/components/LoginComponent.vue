@@ -14,7 +14,7 @@
       <v-card-text>
         <v-form v-model="form.valid">
           <v-row dense>
-            <v-col cols="12" md="4" sm="6">
+            <v-col cols="12" sm="6">
               <v-text-field
                 v-model="form.login"
                 hint="User login"
@@ -24,7 +24,7 @@
               ></v-text-field>
             </v-col>
 
-            <v-col cols="12" md="4" sm="6">
+            <v-col cols="12" sm="6">
               <v-text-field
                 v-model="form.password"
                 label="Password"
