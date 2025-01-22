@@ -20,7 +20,7 @@ def create_taks():
             if data:
                 result = mongo.db.list.insert_one(data)
                 return jsonify({'msg': 'Taks adicionada', 'id': str(result.inserted_id)}), 201
-            return jsonify({'erro':'O formato dos dados é inválido'}), 400
+            return jsonify({'msg':'O formato dos dados é inválido'}), 400
         return jsonify({'msg':'Inválid Token'}), 401
     except Exception as e:
         return jsonify({'error': str(e)})
@@ -76,13 +76,13 @@ def update_task(id):
         data = request.json
 
         if not data:
-            return jsonify({'erro':'Nenhum dado inserido para atualização'}),400
+            return jsonify({'msg':'Nenhum dado inserido para atualização'}),400
 
         if validadeUser(get_jwt_identity()):
             result = mongo.db.list.update_one({'_id': ObjectId(id), 'user_id': ObjectId(get_jwt_identity())}, {'$set':data})
 
             if result.matched_count == 0:
-                return jsonify({'erro':'Task não encontrada'}),404
+                return jsonify({'msg':'Task não encontrada'}),404
         
             return jsonify({'msg':'Task atualizada'}), 201
         return jsonify({'msg': 'Invalid Token'}), 401

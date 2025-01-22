@@ -4,7 +4,11 @@
       <v-card
         max-width="400"
         prepend-icon="mdi-update"
-        text="Unable to connect to the server. Please check your internet connection and try again. If the problem persists, contact server adminsitrator."
+        :text="
+          text
+            ? text
+            : 'Unable to connect to the server. Please check your internet connection and try again. If the problem persists, contact server adminsitrator.'
+        "
         :title="msg"
       >
         <template v-slot:actions>
@@ -18,7 +22,7 @@
 <script setup>
 import { toRef } from 'vue'
 
-const props = defineProps(['dialog', 'msg'])
+const props = defineProps(['dialog', 'msg', 'text'])
 
 const dialog = toRef(props, 'dialog')
 </script>

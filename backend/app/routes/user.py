@@ -1,8 +1,9 @@
+from datetime import datetime, timezone
 from flask import Blueprint, jsonify, request
 from bson import ObjectId
-from app.extensions import mongo
-from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
-from app.services.utils import validadeUser
+from app.extensions import mongo, jwt
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, get_jwt
+from app.services.utils import validadeUser, check_token_in_blacklist
 
 user_bp = Blueprint('user',__name__)
 
@@ -19,7 +20,7 @@ def auth_user():
             access_token = create_access_token(identity=str(user['_id']), )
             return jsonify({'token': access_token}),200
         
-        return jsonify({'error': 'Invalid credentials'}), 401
+        return jsonify({'msg': 'Invalid credentials'}), 401
     except TypeError as te:
         return jsonify({f'Type error {str(te)}'})
     except Exception as e:
@@ -54,3 +55,15 @@ def get_username():
         return jsonify({'msg': 'Inválid token'}), 400
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    
+@user_bp.route("/logout", methods=['POST'])
+@jwt_required()
+def logout():
+    jti = get_jwt()["jti"]
+    now = datetime.now(timezone.utc)
+    mongo.db["blacklist"].insert_one({"jti":jti, "created_at": now})
+    return jsonify({"msg": "Successfully signed out"})
+
+@jwt.token_in_blocklist_loader
+def blacklist_token(jwt_header, jwt_payload):
+    return check_token_in_blacklist(jwt_header,jwt_payload)

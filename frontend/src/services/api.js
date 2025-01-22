@@ -9,6 +9,12 @@ const api = axios.create({
 })
 
 export const user_login = (data) => api.post('/user/auth', data)
+export const user_logout = (data) =>
+  api.post('/user/logout', data, {
+    headers: {
+      Authorization: `Bearer ${JSON.parse(localStorage.getItem('token'))}`,
+    },
+  })
 export const get_user = (user) =>
   api.get(`/user?login=${user}`, {
     headers: {
