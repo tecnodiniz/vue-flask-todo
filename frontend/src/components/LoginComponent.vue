@@ -57,15 +57,35 @@
           @click="emitUser"
         ></v-btn>
       </v-card-actions>
+
+      <FormUserComponent @new-user="newUser">
+        <template v-if="errorMessage"
+          ><small class="text-caption text-red-lighten-1">{{ errorMessage }}</small>
+        </template>
+      </FormUserComponent>
+
+      <DialogComponent
+        :msg="dialogTitle"
+        :text="dialogText"
+        :dialog="formDone"
+        @close="formDone = false"
+      />
     </v-card>
   </v-dialog>
 </template>
 
 <script setup>
 import { ref } from 'vue'
+import FormUserComponent from './FormUserComponent.vue'
+import DialogComponent from './DialogComponent.vue'
+import { create_user } from '@/services/api'
 const dialog = ref(false)
 const loading = ref(false)
 const submit = ref(false)
+const formDone = ref(false)
+const errorMessage = ref('')
+const dialogTitle = ref('')
+const dialogText = ref('')
 
 const emit = defineEmits(['user-login'])
 const form = ref({
@@ -83,6 +103,30 @@ const emitUser = () => {
     submit.value = true
     const payload = { username: form.value.login, password: form.value.password }
     emit('user-login', payload)
+  }
+}
+
+const newUser = async (data) => {
+  try {
+    console.log(data)
+    const res = await create_user(data)
+    if (res && res.data) {
+      console.log(res.data)
+      dialogTitle.value = 'User Created'
+      dialogText.value = 'User successfully created, please, login into application'
+      formDone.value = true
+    }
+  } catch (error) {
+    const { response } = error
+    if (response && response.status === 409) {
+      console.log('conflito')
+      errorMessage.value = response.data.msg
+      return
+    } else {
+      console.log(error.message)
+      dialogTitle.value = 'Something got wrong'
+      formDone.value = true
+    }
   }
 }
 </script>

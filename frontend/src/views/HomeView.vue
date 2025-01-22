@@ -148,7 +148,7 @@ const userLogin = async (user) => {
       console.warn('Error 401: UNAUTHORIZED')
       errorMessage.value = response.data.msg
     } else {
-      console.log(error)
+      console.log(error.message)
       dialogTitle.value = 'Something got wrong'
       dialog.value = true
     }
@@ -193,11 +193,11 @@ const sessionExpired = () => {
 
 const handleError = (error) => {
   const { response } = error
-  if (error.response && error.response.status === 401) {
+  if (response && response.status === 401) {
     sessionExpired()
     console.log(response.data.msg)
   } else {
-    console.log(error)
+    console.log(error.message)
     dialogTitle.value = 'Something got wrong'
     dialog.value = true
   }

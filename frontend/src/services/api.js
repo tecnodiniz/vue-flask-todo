@@ -8,6 +8,7 @@ const api = axios.create({
   },
 })
 
+export const create_user = (data) => api.post('/user/new', data)
 export const user_login = (data) => api.post('/user/auth', data)
 export const user_logout = (data) =>
   api.post('/user/logout', data, {

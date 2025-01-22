@@ -30,10 +30,13 @@ def auth_user():
 def create_user():
     try:
         data = request.json
-        if data:
-            result = mongo.db.usuario.insert_one(data)
-            return jsonify({'msg': 'user succefuly created!','id': str(result.inserted_id)}), 201
-        return jsonify({'msg': 'Inválid format'}), 400
+
+        if not mongo.db.usuario.find_one({"user_login": data["user_login"]}):
+            if data:
+                result = mongo.db.usuario.insert_one(data)
+                return jsonify({'msg': 'user succefuly created!','id': str(result.inserted_id)}), 201
+            return jsonify({'msg': 'Inválid format'}), 400
+        return jsonify({'msg': 'User already registered'}), 409
             
     except Exception as e:
         return jsonify({'erro': str(e)}), 500
