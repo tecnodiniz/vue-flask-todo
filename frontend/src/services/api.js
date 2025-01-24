@@ -8,6 +8,12 @@ const api = axios.create({
   },
 })
 
+export const get_todos = () =>
+  api.get('/todo/', {
+    headers: {
+      Authorization: `Bearer ${JSON.parse(localStorage.getItem('token'))}`,
+    },
+  })
 export const create_user = (data) => api.post('/user/new', data)
 export const user_login = (data) => api.post('/user/auth', data)
 export const user_logout = (data) =>
@@ -29,8 +35,8 @@ export const new_task = (data) =>
       Authorization: `Bearer ${JSON.parse(localStorage.getItem('token'))}`,
     },
   })
-export const get_tasks = () =>
-  api.get('/task/', {
+export const get_tasks = (id) =>
+  api.get(`/task?todo=${id}`, {
     headers: {
       Authorization: `Bearer ${JSON.parse(localStorage.getItem('token'))}`,
     },
@@ -50,8 +56,8 @@ export const delete_task = (id) =>
     },
   })
 
-export const delete_all = () =>
-  api.get('/task/tasks/reset', {
+export const delete_all = (id) =>
+  api.get(`/task/tasks/reset?todo=${id}`, {
     headers: {
       Authorization: `Bearer ${JSON.parse(localStorage.getItem('token'))}`,
     },

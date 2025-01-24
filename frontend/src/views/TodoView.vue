@@ -1,11 +1,12 @@
 <template>
   <v-container class="text-center">
-    <h2>Welcome {{ username }}</h2>
+    <!-- <h2>Welcome {{ username }}</h2>
     <LoginComponent v-if="!loged" @user-login="userLogin">
       <template v-if="errorMessage"
         ><small class="text-caption text-red-lighten-1">{{ errorMessage }}</small>
       </template>
-    </LoginComponent>
+    </LoginComponent> -->
+
     <v-btn v-if="loged" @click="logout"> Logout </v-btn>
     <TodoComponent
       :todos="todos"
@@ -20,20 +21,18 @@
 </template>
 
 <script setup>
-import LoginComponent from '@/components/LoginComponent.vue'
 import TodoComponent from '@/components/CardComponent/TodoComponent.vue'
 import DialogComponent from '@/components/DialogComponent.vue'
 import {
   delete_all,
   delete_task,
   get_tasks,
-  get_user,
-  new_task,
   update_task,
-  user_login,
   user_logout,
+  new_task,
 } from '@/services/api'
-import { onMounted, reactive, ref } from 'vue'
+import { onMounted, onUpdated, reactive, ref } from 'vue'
+import { useRoute } from 'vue-router'
 
 const dialog = ref(false)
 const dialogTitle = ref('')
@@ -41,40 +40,45 @@ const dialogText = ref('')
 const todos = reactive([])
 const username = ref('')
 const loged = ref(false)
-const errorMessage = ref('')
+const route = useRoute()
 
 onMounted(() => {
   if (localStorage.getItem('token')) {
+    todos.splice(0, todos.length)
     loged.value = true
     username.value = localStorage.getItem('username')
     getTodos()
-  } else if (localStorage.getItem('task'))
-    todos.splice(0, todos.length, ...JSON.parse(localStorage.getItem('task')))
+  } else {
+    location.href = '/'
+  }
+})
+onUpdated(() => {
+  if (localStorage.getItem('token')) {
+    todos.splice(0, todos.length)
+    username.value = localStorage.getItem('username')
+    getTodos()
+  } else {
+    location.href = '/'
+  }
 })
 const addItem = async (item) => {
-  if (localStorage.getItem('token')) {
-    try {
-      const task = { task: item, done: false }
-      const res = await new_task(task)
-      if (res.data) {
-        console.log(res.data.msg)
-        getTodos()
-      }
-    } catch (error) {
-      handleError(error)
+  try {
+    const task = { task: item, done: false, todo_id: route.params.id }
+    const res = await new_task(task)
+    if (res.data) {
+      console.log(res.data.msg)
+      getTodos()
     }
-  } else {
-    const task = { _id: todos.length + 1, task: item, done: false }
-    todos.push(task)
-    localStorage.setItem('task', JSON.stringify(todos))
-    setTodos()
+  } catch (error) {
+    handleError(error)
   }
 }
 const getTodos = async () => {
   try {
-    const res = await get_tasks()
+    const res = await get_tasks(route.params.id)
     if (res.data && res.data.tasks) {
       todos.splice(0, todos.length, ...res.data.tasks)
+      console.log(res.data.tasks)
     } else throw new Error('Error fetching data')
   } catch (error) {
     handleError(error)
@@ -118,7 +122,7 @@ const deleteItem = async (id) => {
 const deleteAll = async (value) => {
   if (localStorage.getItem('token')) {
     try {
-      const res = await delete_all()
+      const res = await delete_all(route.params.id)
       if (res.data) {
         console.log(res.data.msg)
         getTodos()
@@ -132,42 +136,42 @@ const deleteAll = async (value) => {
   }
 }
 
-const userLogin = async (user) => {
-  try {
-    const res = await user_login(user)
+// const userLogin = async (user) => {
+//   try {
+//     const res = await user_login(user)
 
-    if (res.data && res.data.token) {
-      const token = res.data.token
-      localStorage.setItem('token', JSON.stringify(token))
-      getUser(user.username)
-    } else throw new Error('Token not found')
-    return user
-  } catch (error) {
-    const { response } = error
-    if (error.response && error.response.status === 401) {
-      console.warn('Error 401: UNAUTHORIZED')
-      errorMessage.value = response.data.msg
-    } else {
-      console.log(error.message)
-      dialogTitle.value = 'Something got wrong'
-      dialog.value = true
-    }
-  }
-}
+//     if (res.data && res.data.token) {
+//       const token = res.data.token
+//       localStorage.setItem('token', JSON.stringify(token))
+//       getUser(user.username)
+//     } else throw new Error('Token not found')
+//     return user
+//   } catch (error) {
+//     const { response } = error
+//     if (error.response && error.response.status === 401) {
+//       console.warn('Error 401: UNAUTHORIZED')
+//       errorMessage.value = response.data.msg
+//     } else {
+//       console.log(error.message)
+//       dialogTitle.value = 'Something got wrong'
+//       dialog.value = true
+//     }
+//   }
+// }
 
-const getUser = async (login) => {
-  try {
-    const res = await get_user(login)
-    if (res.data && res.data.user) {
-      localStorage.setItem('username', res.data.user)
-      location.href = '/welcome'
-    } else throw new Error('User not found')
-  } catch (error) {
-    dialogTitle.value = 'Something got wrong'
-    dialog.value = true
-    console.log(error.message)
-  }
-}
+// const getUser = async (login) => {
+//   try {
+//     const res = await get_user(login)
+//     if (res.data && res.data.user) {
+//       localStorage.setItem('username', res.data.user)
+//       location.reload()
+//     } else throw new Error('User not found')
+//   } catch (error) {
+//     dialogTitle.value = 'Something got wrong'
+//     dialog.value = true
+//     console.log(error.message)
+//   }
+// }
 
 const logout = async () => {
   try {

@@ -13,10 +13,8 @@ task_bp = Blueprint('task',__name__)
 def create_taks():
     try:
         if validadeUser(get_jwt_identity()):
-            user_id = get_jwt_identity()
             data = request.json
-            data["user_id"] = ObjectId(user_id)
-
+            data["todo_id"] = ObjectId(data["todo_id"])
             if data:
                 result = mongo.db.list.insert_one(data)
                 return jsonify({'msg': 'Taks adicionada', 'id': str(result.inserted_id)}), 201
@@ -26,19 +24,19 @@ def create_taks():
         return jsonify({'error': str(e)})
     
 # Get Tasks
-@task_bp.route('/', methods=['GET'])
+@task_bp.route('', methods=['GET'])
 @jwt_required()
 def get_tasks():
     try:
         if validadeUser(get_jwt_identity()):
-            user_id = get_jwt_identity()
-            cursor = mongo.db.list.find({"user_id": ObjectId(user_id)})
+            todo_id = request.args.get('todo', default=None)
+            cursor = mongo.db.list.find({"todo_id": ObjectId(todo_id)})
             tasks = list(cursor)
 
             if tasks:
                 for task in tasks:
                     task['_id'] = str(task['_id'])
-                    task['user_id'] = str(task['user_id'])
+                    task['todo_id'] = str(task['todo_id'])
             
             return jsonify({'tasks':tasks}), 200
         return jsonify({'msg': 'Invalid Token'}), 401
@@ -58,10 +56,10 @@ def get_task(id):
                 return jsonify({'msg': 'Task não encontrada'}), 404
         
             data['_id'] = str(data['_id'])
-            data['user_id'] = str(data['user_id'])
+          
 
-            if get_jwt_identity() == data["user_id"]:
-                return jsonify({'task':data}), 200
+            
+            return jsonify({'task':data}), 200
         
         return jsonify({'msg': 'Invalid Token'}), 401
         
@@ -79,7 +77,7 @@ def update_task(id):
             return jsonify({'msg':'Nenhum dado inserido para atualização'}),400
 
         if validadeUser(get_jwt_identity()):
-            result = mongo.db.list.update_one({'_id': ObjectId(id), 'user_id': ObjectId(get_jwt_identity())}, {'$set':data})
+            result = mongo.db.list.update_one({'_id': ObjectId(id)}, {'$set':data})
 
             if result.matched_count == 0:
                 return jsonify({'msg':'Task não encontrada'}),404
@@ -96,7 +94,7 @@ def update_task(id):
 def delete_task(id):
     try: 
         if validadeUser(get_jwt_identity()):
-            result = mongo.db.list.delete_one({'_id': ObjectId(id), 'user_id':ObjectId(get_jwt_identity())})
+            result = mongo.db.list.delete_one({'_id': ObjectId(id)})
 
             if result.deleted_count == 0:
                 return jsonify({'msg': 'Taks não encontrada'}), 404
@@ -113,7 +111,8 @@ def delete_task(id):
 def delete_all():
     try:
         if validadeUser(get_jwt_identity()):
-            result = mongo.db.list.delete_many({"user_id": ObjectId(get_jwt_identity())})
+            todo_id =request.args.get('todo',default=None) 
+            result = mongo.db.list.delete_many({"todo_id": ObjectId(todo_id)})
 
             if result.deleted_count == 0:
                 return jsonify({'msg':'Nenhum item foi excluido'}),200
