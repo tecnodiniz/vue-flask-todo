@@ -2,7 +2,7 @@
   <v-layout>
     <v-app-bar prominent>
       <v-app-bar-nav-icon variant="text" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
-      <v-toolbar-title>My App</v-toolbar-title>
+      <v-toolbar-title>Your Todo List</v-toolbar-title>
       <v-spacer></v-spacer>
     </v-app-bar>
 
@@ -11,8 +11,12 @@
       :location="$vuetify.display.mobile ? 'bottom' : undefined"
     >
       <v-list>
-        <v-list-item>
+        <v-list-item v-if="!todos">
           <RouterLink to="/">Home</RouterLink>
+        </v-list-item>
+
+        <v-list-item v-if="todos">
+          <RouterLink to="/user">Home</RouterLink>
         </v-list-item>
 
         <div v-if="todos">

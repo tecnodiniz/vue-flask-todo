@@ -1,6 +1,5 @@
 <template>
   <v-container class="text-center">
-    <h2>Welcome {{ username }}</h2>
     <LoginComponent v-if="!loged" @user-login="userLogin">
       <template v-if="errorMessage"
         ><small class="text-caption text-red-lighten-1">{{ errorMessage }}</small>
@@ -23,110 +22,44 @@
 import LoginComponent from '@/components/LoginComponent.vue'
 import TodoComponent from '@/components/CardComponent/TodoComponent.vue'
 import DialogComponent from '@/components/DialogComponent.vue'
-import {
-  delete_all,
-  delete_task,
-  get_tasks,
-  get_user,
-  new_task,
-  update_task,
-  user_login,
-  user_logout,
-} from '@/services/api'
+import { user_login, get_user, user_logout } from '@/services/api'
 import { onMounted, reactive, ref } from 'vue'
 
 const dialog = ref(false)
 const dialogTitle = ref('')
 const dialogText = ref('')
 const todos = reactive([])
-const username = ref('')
+
 const loged = ref(false)
 const errorMessage = ref('')
 
 onMounted(() => {
-  if (localStorage.getItem('token')) {
-    loged.value = true
-    username.value = localStorage.getItem('username')
-    getTodos()
-  } else if (localStorage.getItem('task'))
+  if (localStorage.getItem('token')) loged.value = true
+  if (localStorage.getItem('task'))
     todos.splice(0, todos.length, ...JSON.parse(localStorage.getItem('task')))
 })
 const addItem = async (item) => {
-  if (localStorage.getItem('token')) {
-    try {
-      const task = { task: item, done: false }
-      const res = await new_task(task)
-      if (res.data) {
-        console.log(res.data.msg)
-        getTodos()
-      }
-    } catch (error) {
-      handleError(error)
-    }
-  } else {
-    const task = { _id: todos.length + 1, task: item, done: false }
-    todos.push(task)
-    localStorage.setItem('task', JSON.stringify(todos))
-    setTodos()
-  }
+  const task = { _id: todos.length + 1, task: item, done: false }
+  todos.push(task)
+  localStorage.setItem('task', JSON.stringify(todos))
+  setTodos()
 }
-const getTodos = async () => {
-  try {
-    const res = await get_tasks()
-    if (res.data && res.data.tasks) {
-      todos.splice(0, todos.length, ...res.data.tasks)
-    } else throw new Error('Error fetching data')
-  } catch (error) {
-    handleError(error)
-  }
-}
+
 const setTodos = () => {
   localStorage.setItem('task', JSON.stringify(todos))
 }
-const updateItem = async (task) => {
-  if (localStorage.getItem('token')) {
-    try {
-      const res = await update_task(task._id, { done: task.done })
-      if (res.data) {
-        console.log(res.data.msg)
-        getTodos()
-      }
-    } catch (error) {
-      handleError(error)
-    }
-  } else setTodos()
+const updateItem = async () => {
+  setTodos()
 }
 
 const deleteItem = async (id) => {
-  if (localStorage.getItem('token')) {
-    try {
-      const res = await delete_task(id)
-      if (res.data) {
-        console.log(res.data.msg)
-        getTodos()
-      }
-    } catch (error) {
-      handleError(error)
-    }
-  } else {
-    const index = todos.findIndex((i) => i._id == id)
-    todos.splice(index, 1)
-    setTodos()
-  }
+  const index = todos.findIndex((i) => i._id == id)
+  todos.splice(index, 1)
+  setTodos()
 }
 
 const deleteAll = async (value) => {
-  if (localStorage.getItem('token')) {
-    try {
-      const res = await delete_all()
-      if (res.data) {
-        console.log(res.data.msg)
-        getTodos()
-      }
-    } catch (error) {
-      handleError(error)
-    }
-  } else if (value) {
+  if (value) {
     todos.splice(0, todos.length)
     setTodos()
   }
@@ -182,24 +115,5 @@ const logout = async () => {
   localStorage.removeItem('username')
   loged.value = false
   location.reload()
-}
-
-const sessionExpired = () => {
-  console.warn('Error 401: UNAUTHORIZED')
-  dialogTitle.value = 'Session Expired'
-  dialogText.value = 'Your session has been expired, please login again'
-  dialog.value = true
-}
-
-const handleError = (error) => {
-  const { response } = error
-  if (response && response.status === 401) {
-    sessionExpired()
-    console.log(response.data.msg)
-  } else {
-    console.log(error.message)
-    dialogTitle.value = 'Something got wrong'
-    dialog.value = true
-  }
 }
 </script>

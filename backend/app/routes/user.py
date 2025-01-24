@@ -5,6 +5,7 @@ from app.extensions import mongo, jwt
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, get_jwt
 from app.services.utils import validadeUser, check_token_in_blacklist
 
+
 user_bp = Blueprint('user',__name__)
 
 @user_bp.route('/auth', methods=['POST'])
@@ -41,7 +42,37 @@ def create_user():
     except Exception as e:
         return jsonify({'erro': str(e)}), 500
 
+@user_bp.route('/get', methods=['GET'])
+@jwt_required()
+def get_user_info():
+    try:
+        if(validadeUser(get_jwt_identity())):
+            user = mongo.db.usuario.find_one({"_id": ObjectId(get_jwt_identity())})
+            if(user):
+                tod_cursor = mongo.db.todos.find({"user_id": ObjectId(user["_id"])})
+                tod = list(tod_cursor)
+                for t in tod:
 
+                    task_cursor = mongo.db.list.find({"todo_id": t["_id"]})
+                    tasks = list(task_cursor)
+
+                    for task in tasks:
+                        task["_id"] = str(task["_id"])
+                        task["todo_id"] = str(task["todo_id"])
+
+                    t["_id"] = str(t["_id"])
+                    t["user_id"] = str(t["user_id"])
+                    t["tasks"] = tasks
+                
+                user["_id"] = str(user["_id"])
+                info = {"user": user, "todo": tod}
+                return jsonify({"info": info}), 200
+            return jsonify({"msg": "User not found"} ),404
+            
+        return jsonify({"msg": "Invalid Token"}),401
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
 @user_bp.route('', methods=['GET'])
 @jwt_required()
 def get_username():

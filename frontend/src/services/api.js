@@ -22,6 +22,12 @@ export const user_logout = (data) =>
       Authorization: `Bearer ${JSON.parse(localStorage.getItem('token'))}`,
     },
   })
+export const get_user_info = () =>
+  api.get('/user/get', {
+    headers: {
+      Authorization: `Bearer ${JSON.parse(localStorage.getItem('token'))}`,
+    },
+  })
 export const get_user = (user) =>
   api.get(`/user?login=${user}`, {
     headers: {
