@@ -14,6 +14,12 @@ export const get_todos = () =>
       Authorization: `Bearer ${JSON.parse(localStorage.getItem('token'))}`,
     },
   })
+export const create_todo = (data) =>
+  api.post('/todo/new', data, {
+    headers: {
+      Authorization: `Bearer ${JSON.parse(localStorage.getItem('token'))}`,
+    },
+  })
 export const create_user = (data) => api.post('/user/new', data)
 export const user_login = (data) => api.post('/user/auth', data)
 export const user_logout = (data) =>

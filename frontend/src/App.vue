@@ -10,6 +10,8 @@
       v-model="drawer"
       :location="$vuetify.display.mobile ? 'bottom' : undefined"
     >
+      <!-- Add New Todo -->
+      <TodoForm @new-todo="createTodo" />
       <v-list>
         <v-list-item v-if="!todos">
           <RouterLink to="/">Home</RouterLink>
@@ -33,16 +35,22 @@
 
     <v-main>
       <RouterView />
+      <DialogComponent :msg="dialogTitle" :text="dialogText" :dialog="dialog" @close="logout" />
     </v-main>
   </v-layout>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { get_todos } from './services/api'
+import DialogComponent from './components/DialogComponent.vue'
+import { create_todo, get_todos, user_logout } from './services/api'
+import TodoForm from './components/TodoForm.vue'
 const token = ref('')
 const todos = ref([])
 const drawer = ref(false)
+const dialogTitle = ref('')
+const dialogText = ref('')
+const dialog = ref(false)
 onMounted(() => {
   token.value = localStorage.getItem('token')
 
@@ -54,10 +62,55 @@ const getTodos = async () => {
     const res = await get_todos()
 
     if (res && res.data) {
-      todos.value.push(...res.data.todos)
+      todos.value.splice(0, todos.value.length, ...res.data.todos)
     }
-  } catch (erro) {
-    console.log(erro)
+  } catch (error) {
+    handleError(error)
+  }
+}
+
+const createTodo = async (todo) => {
+  try {
+    const res = await create_todo(todo)
+    if (res.data) {
+      console.log(res.data)
+      getTodos()
+    } else console.log(res.data)
+  } catch (error) {
+    handleError(error)
+  }
+}
+
+const logout = async () => {
+  try {
+    const res = await user_logout({})
+    if (res.data) {
+      console.log('logout')
+    } else throw new Error('Erro')
+  } catch (error) {
+    console.log(error.message)
+  }
+  localStorage.removeItem('token')
+  localStorage.removeItem('username')
+  location.reload()
+}
+
+const sessionExpired = () => {
+  console.warn('Error 401: UNAUTHORIZED')
+  dialogTitle.value = 'Session Expired'
+  dialogText.value = 'Your session has been expired, please login again'
+  dialog.value = true
+}
+
+const handleError = (error) => {
+  const { response } = error
+  if (response && response.status === 401) {
+    sessionExpired()
+    console.log(response.data.msg)
+  } else {
+    console.log(error.message)
+    dialogTitle.value = 'Something got wrong'
+    dialog.value = true
   }
 }
 </script>
