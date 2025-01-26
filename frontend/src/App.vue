@@ -11,25 +11,33 @@
       :location="$vuetify.display.mobile ? 'bottom' : undefined"
     >
       <!-- Add New Todo -->
-      <TodoForm @new-todo="createTodo" />
+
       <v-list>
-        <v-list-item v-if="!todos">
-          <RouterLink to="/">Home</RouterLink>
-        </v-list-item>
+        <div v-if="token">
+          <TodoForm @new-todo="createTodo" />
+          <v-list-item>
+            <RouterLink to="/user">Home</RouterLink>
+          </v-list-item>
 
-        <v-list-item v-if="todos">
-          <RouterLink to="/user">Home</RouterLink>
-        </v-list-item>
+          <v-list-item v-for="(i, index) in todos" :key="i._id" @dblclick="editItem(index)">
+            <template v-if="editingIndex === index">
+              <v-text-field
+                v-model="i.name"
+                @blur="saveItem(i.name, i._id)"
+                @keydown.enter="saveItem(i.name, i._id)"
+                label="Editar"
+                dense
+                autofocus
+              ></v-text-field>
+            </template>
 
-        <div v-if="todos">
-          <v-list-item v-for="(i, index) in todos" :key="index">
-            <RouterLink :to="`/todo/${i._id}`">{{ i.name }}</RouterLink>
+            <template v-else>
+              <RouterLink :to="`/todo/${i._id}`">{{ i.name }}</RouterLink>
+            </template>
           </v-list-item>
         </div>
 
-        <v-list-item v-if="!todos">
-          <RouterLink>Todo</RouterLink>
-        </v-list-item>
+        <v-list-item v-else> Todo </v-list-item>
       </v-list>
     </v-navigation-drawer>
 
@@ -43,7 +51,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import DialogComponent from './components/DialogComponent.vue'
-import { create_todo, get_todos, user_logout } from './services/api'
+import { create_todo, get_todos, update_todo, user_logout } from './services/api'
 import TodoForm from './components/TodoForm.vue'
 const token = ref('')
 const todos = ref([])
@@ -51,6 +59,7 @@ const drawer = ref(false)
 const dialogTitle = ref('')
 const dialogText = ref('')
 const dialog = ref(false)
+const editingIndex = ref(null)
 onMounted(() => {
   token.value = localStorage.getItem('token')
 
@@ -81,6 +90,25 @@ const createTodo = async (todo) => {
   }
 }
 
+const editItem = (index) => {
+  editingIndex.value = index
+}
+
+const saveItem = async (name, id) => {
+  try {
+    if (name.trim() !== '') {
+      const payload = { name: name }
+      const res = await update_todo(id, payload)
+      if (res.data) {
+        console.log(res.data)
+        getTodos()
+        editingIndex.value = null
+      } else return
+    }
+  } catch (error) {
+    handleError(error)
+  }
+}
 const logout = async () => {
   try {
     const res = await user_logout({})

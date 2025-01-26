@@ -39,3 +39,23 @@ def get_todos():
     except Exception as e:
         return jsonify({"error": str(e)})
     
+@todo_bp.route('/<id>', methods=['PUT'])
+@jwt_required()
+def edit_todo(id):
+    try:
+        data = request.json
+
+        if not data:
+            return jsonify({'msg':'Nenhum dado inserido para atualização'}),400
+        
+        if(validadeUser(get_jwt_identity())):
+            result = mongo.db.todos.update_one({"_id": ObjectId(id)}, {"$set": data})
+            
+            if result.matched_count == 0:
+                return jsonify({'msg':'Todo não encontrado'}),404
+        
+            return jsonify({'msg':'Todo atualizado'}), 201
+        return jsonify({'msg': 'Invalid Token'}), 401
+        
+    except Exception as e:
+        return jsonify({"error": str(e)})
