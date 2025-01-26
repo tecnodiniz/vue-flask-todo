@@ -26,6 +26,13 @@ export const update_todo = (id, data) =>
       Authorization: `Bearer ${JSON.parse(localStorage.getItem('token'))}`,
     },
   })
+
+export const delete_todo = (id) =>
+  api.delete(`/todo/${id}`, {
+    headers: {
+      Authorization: `Bearer ${JSON.parse(localStorage.getItem('token'))}`,
+    },
+  })
 export const create_user = (data) => api.post('/user/new', data)
 export const user_login = (data) => api.post('/user/auth', data)
 export const user_logout = (data) =>

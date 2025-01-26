@@ -1,12 +1,5 @@
 <template>
   <v-container class="text-center">
-    <!-- <h2>Welcome {{ username }}</h2>
-    <LoginComponent v-if="!loged" @user-login="userLogin">
-      <template v-if="errorMessage"
-        ><small class="text-caption text-red-lighten-1">{{ errorMessage }}</small>
-      </template>
-    </LoginComponent> -->
-
     <v-btn v-if="loged" @click="logout"> Logout </v-btn>
     <TodoComponent
       :todos="todos"
@@ -15,6 +8,7 @@
       @delete-item="deleteItem"
       @delete-all="deleteAll"
     />
+    <DialogExludeComponent @delete-confirm="exclude" />
   </v-container>
 
   <DialogComponent :msg="dialogTitle" :text="dialogText" :dialog="dialog" @close="logout" />
@@ -23,6 +17,7 @@
 <script setup>
 import TodoComponent from '@/components/CardComponent/TodoComponent.vue'
 import DialogComponent from '@/components/DialogComponent.vue'
+import DialogExludeComponent from '@/components/DialogExludeComponent.vue'
 import {
   delete_all,
   delete_task,
@@ -30,6 +25,7 @@ import {
   update_task,
   user_logout,
   new_task,
+  delete_todo,
 } from '@/services/api'
 import { onMounted, onUpdated, reactive, ref } from 'vue'
 import { useRoute } from 'vue-router'
@@ -66,7 +62,6 @@ const addItem = async (item) => {
     const task = { task: item, done: false, todo_id: route.params.id }
     const res = await new_task(task)
     if (res.data) {
-      console.log(res.data.msg)
       getTodos()
     }
   } catch (error) {
@@ -78,7 +73,6 @@ const getTodos = async () => {
     const res = await get_tasks(route.params.id)
     if (res.data && res.data.tasks) {
       todos.splice(0, todos.length, ...res.data.tasks)
-      console.log(res.data.tasks)
     } else throw new Error('Error fetching data')
   } catch (error) {
     handleError(error)
@@ -124,7 +118,6 @@ const deleteAll = async (value) => {
     try {
       const res = await delete_all(route.params.id)
       if (res.data) {
-        console.log(res.data.msg)
         getTodos()
       }
     } catch (error) {
@@ -136,42 +129,18 @@ const deleteAll = async (value) => {
   }
 }
 
-// const userLogin = async (user) => {
-//   try {
-//     const res = await user_login(user)
+const exclude = async () => {
+  const res = await delete_todo(route.params.id)
 
-//     if (res.data && res.data.token) {
-//       const token = res.data.token
-//       localStorage.setItem('token', JSON.stringify(token))
-//       getUser(user.username)
-//     } else throw new Error('Token not found')
-//     return user
-//   } catch (error) {
-//     const { response } = error
-//     if (error.response && error.response.status === 401) {
-//       console.warn('Error 401: UNAUTHORIZED')
-//       errorMessage.value = response.data.msg
-//     } else {
-//       console.log(error.message)
-//       dialogTitle.value = 'Something got wrong'
-//       dialog.value = true
-//     }
-//   }
-// }
-
-// const getUser = async (login) => {
-//   try {
-//     const res = await get_user(login)
-//     if (res.data && res.data.user) {
-//       localStorage.setItem('username', res.data.user)
-//       location.reload()
-//     } else throw new Error('User not found')
-//   } catch (error) {
-//     dialogTitle.value = 'Something got wrong'
-//     dialog.value = true
-//     console.log(error.message)
-//   }
-// }
+  try {
+    if (res.data) {
+      console.log(res.data.msg)
+      location.href = '/'
+    }
+  } catch (error) {
+    handleError(error)
+  }
+}
 
 const logout = async () => {
   try {

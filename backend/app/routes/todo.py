@@ -59,3 +59,19 @@ def edit_todo(id):
         
     except Exception as e:
         return jsonify({"error": str(e)})
+    
+@todo_bp.route('/<id>', methods=['DELETE'])
+def delete_todo(id):
+    try:
+        if not ObjectId(id):
+            return jsonify({"msg": "Invalid id"}), 400
+
+        result = mongo.db.todos.delete_one({"_id": ObjectId(id)})
+
+        if result.deleted_count == 0:
+            return jsonify({"msg": "Item não encontrado"}), 404
+
+        return jsonify({"msg": "Item excluído"}), 200
+        return
+    except Exception as e:
+        return jsonify({"error": str(e)})
