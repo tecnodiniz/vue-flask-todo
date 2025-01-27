@@ -1,6 +1,5 @@
 <template>
   <v-container class="text-center">
-    <v-btn v-if="loged" @click="logout"> Logout </v-btn>
     <TodoComponent
       :todos="todos"
       @add-item="addItem"

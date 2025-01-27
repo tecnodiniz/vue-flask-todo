@@ -1,10 +1,13 @@
 <template>
   <v-container>
     <div>Welcome to your info page {{ username }}</div>
+
+    <DataIteratorComponent :todos="userInfo.info.todo" />
   </v-container>
 </template>
 
 <script setup>
+import DataIteratorComponent from '@/components/DataIteratorComponent.vue'
 import { get_user_info } from '@/services/api'
 import { onMounted, ref } from 'vue'
 const userInfo = ref({

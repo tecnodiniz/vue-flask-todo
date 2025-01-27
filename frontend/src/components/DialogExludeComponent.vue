@@ -10,7 +10,7 @@
         title="Deltar lista?"
       >
         <template v-slot:actions>
-          <v-btn class="ms-auto" text="Calcel" @click="dialog = false"></v-btn>
+          <v-btn class="ms-auto" text="Cancel" @click="dialog = false"></v-btn>
           <v-btn class="ms-auto" text="Confirm" @click="$emit('delete-confirm')"></v-btn>
         </template>
       </v-card>

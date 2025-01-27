@@ -1,5 +1,5 @@
 <template>
-  <v-col cols="12" md="6" sm="12" class="mx-auto">
+  <v-col cols="12" md="12" sm="12" class="mx-auto">
     <v-sheet color="dark" rounded>
       <div class="card">
         <div class="card-header d-flex">
