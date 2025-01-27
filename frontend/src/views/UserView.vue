@@ -17,7 +17,11 @@
 
     <div>Welcome to your info page {{ username }}</div>
 
-    <TodoDataIteratorComponent :todos="userInfo.info.todo" @delete-confirm="deleteTodo" />
+    <TodoDataIteratorComponent
+      :todos="userInfo.info.todo"
+      @delete-confirm="deleteTodo"
+      @update-todo="updateTodo"
+    />
   </v-container>
 </template>
 
@@ -25,7 +29,7 @@
 import TodoDataIteratorComponent from '@/components/TodoDataIteratorComponent.vue'
 import TodoForm from '@/components/TodoForm.vue'
 
-import { get_user_info, create_todo, delete_todo } from '@/services/api'
+import { get_user_info, create_todo, delete_todo, update_todo } from '@/services/api'
 import { onMounted, ref } from 'vue'
 const userInfo = ref({
   info: {},
@@ -66,6 +70,18 @@ const createTodo = async (todo) => {
   }
 }
 
+const updateTodo = async (todo) => {
+  try {
+    console.log(todo)
+    const res = await update_todo(todo.id, { name: todo.name })
+    if (res.data) {
+      console.log(res.data)
+      getUserInfo()
+    } else return
+  } catch (error) {
+    console.log(error)
+  }
+}
 const deleteTodo = async (id) => {
   try {
     const res = await delete_todo(id)
