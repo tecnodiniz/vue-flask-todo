@@ -134,7 +134,7 @@ const exclude = async () => {
   try {
     if (res.data) {
       console.log(res.data.msg)
-      location.href = '/'
+      location.href = '/user'
     }
   } catch (error) {
     handleError(error)

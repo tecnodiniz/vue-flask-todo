@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="dialog" max-width="600" persistent>
+  <!-- <v-dialog v-model="dialog" max-width="600" persistent>
     <template v-slot:activator="{ props: activatorProps }">
       <v-btn
         class="text-none font-weight-regular"
@@ -48,14 +48,41 @@
         ></v-btn>
       </v-card-actions>
     </v-card>
+  </v-dialog> -->
+
+  <v-dialog v-model="dialog" max-width="500">
+    <v-card>
+      <v-form v-model="form.valid">
+        <v-row dense>
+          <v-col cols="12" sm="6">
+            <v-text-field
+              v-model="form.name"
+              hint="Todo name"
+              label="Todo name*"
+              required
+              :rules="[form.rule.required]"
+            ></v-text-field>
+          </v-col>
+          <v-col cols="12" sm="6">
+            <v-text-field v-model="form.description" label="Description"></v-text-field>
+          </v-col>
+        </v-row>
+      </v-form>
+
+      <v-card-actions>
+        <v-spacer></v-spacer>
+
+        <v-btn color="primary" variant="text" @click="$emit('close')"> Cancel </v-btn>
+        <v-btn color="primary" variant="text" @click="emitTodo"> Submit </v-btn>
+      </v-card-actions>
+    </v-card>
   </v-dialog>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-const dialog = ref(false)
+import { ref, toRef } from 'vue'
 
-const emit = defineEmits(['new-todo'])
+const emit = defineEmits(['new-todo', 'close'])
 const form = ref({
   valid: false,
   name: '',
@@ -77,4 +104,8 @@ const emitTodo = () => {
     dialog.value = false
   }
 }
+
+const props = defineProps(['dialog'])
+
+const dialog = toRef(props, 'dialog')
 </script>

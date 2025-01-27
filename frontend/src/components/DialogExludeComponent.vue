@@ -1,6 +1,6 @@
 <template>
   <div class="text-center pa-4">
-    <v-btn @click="dialog = true"> Exclude </v-btn>
+    <v-btn @click="dialog = true" append-icon="mdi-delete-circle"> Exclude </v-btn>
 
     <v-dialog v-model="dialog" width="auto">
       <v-card

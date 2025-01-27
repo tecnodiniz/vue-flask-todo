@@ -1,7 +1,7 @@
 <template>
   <v-layout>
     <v-app-bar prominent>
-      <v-app-bar-nav-icon variant="text" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
+      <!-- <v-app-bar-nav-icon variant="text" @click.stop="drawer = !drawer"></v-app-bar-nav-icon> -->
       <v-toolbar-title>Your Todo List</v-toolbar-title>
       <v-spacer></v-spacer>
 
@@ -14,11 +14,11 @@
       <v-btn v-else @click="drawerR = !drawerR" icon="mdi-dots-vertical"></v-btn>
     </v-app-bar>
 
-    <v-navigation-drawer
+    <!-- <v-navigation-drawer
       v-model="drawer"
       :location="$vuetify.display.mobile ? 'bottom' : undefined"
     >
-      <!-- Add New Todo -->
+
 
       <v-list>
         <div v-if="token">
@@ -44,7 +44,7 @@
 
         <v-list-item v-else> Todo </v-list-item>
       </v-list>
-    </v-navigation-drawer>
+    </v-navigation-drawer> -->
 
     <v-navigation-drawer location="right" v-model="drawerR">
       <template v-slot:prepend>
@@ -87,24 +87,15 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import DialogComponent from './components/DialogComponent.vue'
-import {
-  create_todo,
-  get_todos,
-  update_todo,
-  user_logout,
-  get_user,
-  user_login,
-} from './services/api'
-import TodoForm from './components/TodoForm.vue'
+import { get_todos, user_logout, get_user, user_login } from './services/api'
 import LoginComponent from './components/LoginComponent.vue'
 const token = ref('')
 const todos = ref([])
-const drawer = ref(false)
+
 const drawerR = ref(false)
 const dialogTitle = ref('')
 const dialogText = ref('')
 const dialog = ref(false)
-const editingIndex = ref(null)
 const errorMessage = ref('')
 const loged = ref(false)
 const username = ref('')
@@ -130,37 +121,37 @@ const getTodos = async () => {
   }
 }
 
-const createTodo = async (todo) => {
-  try {
-    const res = await create_todo(todo)
-    if (res.data) {
-      console.log(res.data)
-      getTodos()
-    } else console.log(res.data)
-  } catch (error) {
-    handleError(error)
-  }
-}
+// const createTodo = async (todo) => {
+//   try {
+//     const res = await create_todo(todo)
+//     if (res.data) {
+//       console.log(res.data)
+//       getTodos()
+//     } else console.log(res.data)
+//   } catch (error) {
+//     handleError(error)
+//   }
+// }
 
-const editItem = (index) => {
-  editingIndex.value = index
-}
+// const editItem = (index) => {
+//   editingIndex.value = index
+// }
 
-const saveItem = async (name, id) => {
-  try {
-    if (name.trim() !== '') {
-      const payload = { name: name }
-      const res = await update_todo(id, payload)
-      if (res.data) {
-        console.log(res.data)
-        getTodos()
-        editingIndex.value = null
-      } else return
-    }
-  } catch (error) {
-    handleError(error)
-  }
-}
+// const saveItem = async (name, id) => {
+//   try {
+//     if (name.trim() !== '') {
+//       const payload = { name: name }
+//       const res = await update_todo(id, payload)
+//       if (res.data) {
+//         console.log(res.data)
+//         getTodos()
+//         editingIndex.value = null
+//       } else return
+//     }
+//   } catch (error) {
+//     handleError(error)
+//   }
+// }
 
 const userLogin = async (user) => {
   try {
