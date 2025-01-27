@@ -1,3 +1,10 @@
+# PATH NOTES(v1.0.0)
+
+- IF YOU WERE RUNNING THE OLD VERSION:
+```
+python updateDb.py
+```
+
 # To-Do List Application
 This is a simple To-Do List Application built using Flask for the backend and Vue.js for the frontend. The frontend has been pre-built and is served through the Flask backend using the static directory.
 
