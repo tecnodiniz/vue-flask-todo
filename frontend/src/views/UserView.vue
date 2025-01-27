@@ -15,7 +15,12 @@
 
     <TodoForm v-model:dialog="dialog" @close="dialog = false" @new-todo="createTodo" />
 
-    <div>Welcome to your info page {{ username }}</div>
+    <div class="text-h6 ma-4">  Welcome to your todo page <span class="green"> {{ username }}</span> </div>
+
+    {{  }}
+    <div class="ma-4" v-if="count === 0">Tips: Click on blue  <v-btn class="ma-4" icon="mdi-plus" color="indigo" size="40" @click="dialog = !dialog"></v-btn> to create a todo list</div>
+    <div class="ma-4" v-else>Tips: Double click on list name to edit  </div>
+
 
     <TodoDataIteratorComponent
       :todos="userInfo.info.todo"
@@ -35,6 +40,7 @@ const userInfo = ref({
   info: {},
 })
 
+const count = ref(0)
 const dialog = ref(false)
 const username = ref('')
 
@@ -51,6 +57,7 @@ const getUserInfo = async () => {
     if (res && res.data) {
       userInfo.value.info = res.data.info
       username.value = userInfo.value.info.user.name
+      count.value = userInfo.value.info.todo.length
     }
   } catch (erro) {
     console.log(erro.message)

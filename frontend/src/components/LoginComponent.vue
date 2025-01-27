@@ -2,7 +2,7 @@
   <v-dialog v-model="dialog" max-width="600" persistent>
     <template v-slot:activator="{ props: activatorProps }">
       <v-btn
-        class="text-none font-weight-regular"
+        class="text-none font-weight-regular ma-5"
         prepend-icon="mdi-account"
         text="Login"
         variant="tonal"

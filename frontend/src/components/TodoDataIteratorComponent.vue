@@ -10,6 +10,7 @@
 
                 <template v-if="editingIndex === index">
                   <v-text-field
+
                     v-model="item.raw.name"
                     @blur="saveItem(item.raw.name, item.raw._id)"
                     @keydown.enter="saveItem(item.raw.name, item.raw._id)"
@@ -17,9 +18,10 @@
                     dense
                     width="200px"
                     autofocus
+                    variant="plain"
                   ></v-text-field>
                 </template>
-                <h4 v-else @dblclick="editItem(index, item.raw.name)">{{ item.raw.name }}</h4>
+                <h4 class="cursor-pointer" v-else @dblclick="editItem(index, item.raw.name)">{{ item.raw.name }}</h4>
               </v-card-title>
 
               <div class="text-center">
@@ -29,8 +31,8 @@
                   <v-card
                     max-width="400"
                     prepend-icon="mdi-update"
-                    text="Quer mesmo exluir a lista?"
-                    title="Deltar lista?"
+                    text="Are you sure?"
+                    title="Delete?"
                   >
                     <template v-slot:actions>
                       <v-btn class="ms-auto" text="Cancel" @click="dialog = false"></v-btn>

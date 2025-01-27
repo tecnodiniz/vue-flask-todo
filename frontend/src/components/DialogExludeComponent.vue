@@ -6,8 +6,8 @@
       <v-card
         max-width="400"
         prepend-icon="mdi-update"
-        text="Quer mesmo exluir a lista?"
-        title="Deltar lista?"
+        text="Are you sure?"
+        title="Delete?"
       >
         <template v-slot:actions>
           <v-btn class="ms-auto" text="Cancel" @click="dialog = false"></v-btn>
