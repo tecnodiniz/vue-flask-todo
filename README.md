@@ -1,8 +1,8 @@
 # PATH NOTES(v1.0.0)
 
-- IF YOU WERE RUNNING THE OLD VERSION:
+- IF YOU ARE RUNNING THE OLD VERSION:
 ```
-python updateDb.py
+python updateDB.py
 ```
 
 # To-Do List Application
