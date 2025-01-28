@@ -69,6 +69,6 @@ const logout = async () => {
   localStorage.removeItem('token')
   localStorage.removeItem('username')
   loged.value = false
-  location.reload()
+  location.href('/')
 }
 </script>

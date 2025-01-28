@@ -12,8 +12,6 @@
       </LoginComponent>
 
       <v-btn v-else @click="drawerR = !drawerR" icon="mdi-dots-vertical"></v-btn>
-
-
     </v-app-bar>
 
     <!-- <v-navigation-drawer
@@ -63,14 +61,13 @@
       <v-list density="compact" nav>
         <v-list-item prepend-icon="mdi-home-city" title="Home" value="home" to="/user">
         </v-list-item>
-<!--
+        <!--
         <v-list-item prepend-icon="mdi-account" title="My Account" value="account"></v-list-item>
         <v-list-item
           prepend-icon="mdi-account-group-outline"
           title="Users"
           value="users"
         ></v-list-item> -->
-
       </v-list>
 
       <template v-slot:append>
@@ -79,14 +76,12 @@
         </div>
 
         <v-divider></v-divider>
-      <v-spacer></v-spacer>
+        <v-spacer></v-spacer>
 
-      <div class="text-center ma-2 pa-2">
-        <span class="green">v 1.0.0</span>
-      </div>
+        <div class="text-center ma-2 pa-2">
+          <span class="green">v 1.0.0</span>
+        </div>
       </template>
-
-
     </v-navigation-drawer>
 
     <v-main>
@@ -213,7 +208,7 @@ const logout = async () => {
   }
   localStorage.removeItem('token')
   localStorage.removeItem('username')
-  location.reload()
+  location.href = '/'
 }
 
 const sessionExpired = () => {
