@@ -14,38 +14,6 @@
       <v-btn v-else @click="drawerR = !drawerR" icon="mdi-dots-vertical"></v-btn>
     </v-app-bar>
 
-    <!-- <v-navigation-drawer
-      v-model="drawer"
-      :location="$vuetify.display.mobile ? 'bottom' : undefined"
-    >
-
-
-      <v-list>
-        <div v-if="token">
-          <TodoForm @new-todo="createTodo" />
-
-          <v-list-item v-for="(i, index) in todos" :key="i._id" @dblclick="editItem(index)">
-            <template v-if="editingIndex === index">
-              <v-text-field
-                v-model="i.name"
-                @blur="saveItem(i.name, i._id)"
-                @keydown.enter="saveItem(i.name, i._id)"
-                label="Editar"
-                dense
-                autofocus
-              ></v-text-field>
-            </template>
-
-            <template v-else>
-              <RouterLink :to="`/todo/${i._id}`">{{ i.name }}</RouterLink>
-            </template>
-          </v-list-item>
-        </div>
-
-        <v-list-item v-else> Todo </v-list-item>
-      </v-list>
-    </v-navigation-drawer> -->
-
     <v-navigation-drawer location="right" v-model="drawerR">
       <template v-slot:prepend>
         <v-list-item
@@ -59,7 +27,7 @@
       <v-divider></v-divider>
 
       <v-list density="compact" nav>
-        <v-list-item prepend-icon="mdi-home-city" title="Home" value="home" to="/user">
+        <v-list-item prepend-icon="mdi-home-city" title="Home" value="home" to="/user-info">
         </v-list-item>
         <!--
         <v-list-item prepend-icon="mdi-account" title="My Account" value="account"></v-list-item>
