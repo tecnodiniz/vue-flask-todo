@@ -61,6 +61,50 @@ The application will run on `http://127.0.0.1:5000` by default.
 
 ## API Endpoints
 
+## User
+### 1. **Authenticate user**
+**`POST /user/auth`**
+- Login into plataform
+- **Request Body**: JSON object: username, password
+- **Response**: jwt token
+
+### 2. **Create User**
+**`POST /user/new`**
+- Add a new user.
+- **Request Body**: JSON object: name, user_login, pwd
+- **Response**: Create user confirmation
+
+### 3. **Logout**
+**`POST /user/logout`**
+- Logout user and set token to blacklist.
+- **Authorization**: Bearer Token
+- **Response**: Logout confirmation
+
+## Todo
+### 1. **Create todo**
+**`POST /todo/new`**
+- Add new todo
+- **Authorization**: Bearer Token
+- **Request Body**: JSON object: name, description, user_id
+- **Response**: Create confirmation
+
+### 2. **`GET /todo/`**
+- Fetches all user todo
+- **Authorization**: Bearer Token
+- **Response**: List of todo
+
+### 3. **`PUT /todo/<id>`**
+- Fetches all user todo
+- **Authorization**: Bearer Token
+- **Request Body**: JSON object with update todo details
+- **Response**: Update confirmation
+
+### 4. **`DELETE /todo/<id>`**
+- Fetches all user todo
+- **Authorization**: Bearer Token
+- **Response**: Delete Confirmation
+
+## Tasks
 ### 1. **Home Route**
 **`GET /`**
 - Serves the `index.html` file from the `static` folder.
@@ -68,12 +112,15 @@ The application will run on `http://127.0.0.1:5000` by default.
 ### 2. **Create Task**
 **`POST /task/new`**
 - Adds a new task.
-- **Request Body**: JSON object with task details.
+- **Authorization**: Bearer Token
+- **Request Body**: JSON object: task, done(true or false), todo_id
 - **Response**: Task creation confirmation with the inserted ID.
 
 ### 3. **Retrieve All Tasks**
-**`GET /task/`**
-- Fetches all tasks in the database.
+**`GET /task?todo=<id>`**
+
+- Fetches all todo tasks in the database.
+- **Authorization**: Bearer Token
 - **Response**: List of tasks.
 
 ### 4. **Retrieve a Specific Task**
@@ -84,17 +131,20 @@ The application will run on `http://127.0.0.1:5000` by default.
 ### 5. **Update Task**
 **`PUT /task/<id>`**
 - Updates an existing task by its ID.
+- **Authorization**: Bearer Token
 - **Request Body**: JSON object with updated task details.
 - **Response**: Update confirmation or 404 if task not found.
 
 ### 6. **Delete Task**
 **`DELETE /task/<id>`**
 - Deletes a task by its ID.
+- **Authorization**: Bearer Token
 - **Response**: Deletion confirmation or 404 if task not found.
 
 ### 7. **Delete All Tasks**
-**`GET /task/tasks/reset`**
-- Deletes all tasks in the database.
+**`GET /tasks/reset?todo=<id>`**
+- Deletes all todo tasks in the database.
+- **Authorization**: Bearer Token
 - **Response**: Confirmation of deletion.
 
 ---

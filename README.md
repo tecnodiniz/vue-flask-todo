@@ -114,6 +114,9 @@ cp -r dist/* ../backend/app/static
 **http://localhost:5000**  
 
 ## Features
+- Create you user
+- Add New Todo
+- Update and Delete Todo
 - Add new tasks to your to-do list
 - Mark tasks as completed
 - Delete tasks
