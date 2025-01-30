@@ -11,6 +11,11 @@ const router = createRouter({
       component: HomeView,
     },
     {
+      path: '/:pathMatch(.*)*',
+      name: 'not-found',
+      component: () => import('../views/404Component.vue'),
+    },
+    {
       path: '/welcome',
       name: 'welcome',
       component: WelcomeView,
@@ -27,5 +32,10 @@ const router = createRouter({
     },
   ],
 })
+
+router.resolve({
+  name: 'not-found',
+  params: { pathMatch: ['not', 'found'] },
+}).href
 
 export default router
