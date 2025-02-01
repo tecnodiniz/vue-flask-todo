@@ -1,7 +1,6 @@
 <template>
   <v-layout>
     <v-app-bar prominent>
-      <!-- <v-app-bar-nav-icon variant="text" @click.stop="drawer = !drawer"></v-app-bar-nav-icon> -->
       <v-toolbar-title>Your Todo List</v-toolbar-title>
       <v-spacer></v-spacer>
 
@@ -29,13 +28,6 @@
       <v-list density="compact" nav>
         <v-list-item prepend-icon="mdi-home-city" title="Home" value="home" to="/user-info">
         </v-list-item>
-        <!--
-        <v-list-item prepend-icon="mdi-account" title="My Account" value="account"></v-list-item>
-        <v-list-item
-          prepend-icon="mdi-account-group-outline"
-          title="Users"
-          value="users"
-        ></v-list-item> -->
       </v-list>
 
       <template v-slot:append>
@@ -60,120 +52,51 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
 import DialogComponent from './components/DialogComponent.vue'
-import { get_todos, user_logout, get_user, user_login } from './services/api'
 import LoginComponent from './components/LoginComponent.vue'
-const token = ref('')
-const todos = ref([])
+
+import { ref, computed } from 'vue'
+import { user_logout, get_user, user_login } from './services/api'
+
+const token = ref(localStorage.getItem('token'))
+const loged = computed(() => !!token.value)
+const username = computed(() => localStorage.getItem('username') || '')
 
 const drawerR = ref(false)
 const dialogTitle = ref('')
 const dialogText = ref('')
 const dialog = ref(false)
 const errorMessage = ref('')
-const loged = ref(false)
-const username = ref('')
-onMounted(() => {
-  token.value = localStorage.getItem('token')
 
-  if (token.value) {
-    getTodos()
-    loged.value = true
-    username.value = localStorage.getItem('username')
-  }
-})
-
-const getTodos = async () => {
-  try {
-    const res = await get_todos()
-
-    if (res && res.data) {
-      todos.value.splice(0, todos.value.length, ...res.data.todos)
-    }
-  } catch (error) {
-    handleError(error)
-  }
+const userLogin = (user) => {
+  user_login(user)
+    .then((resposne) => {
+      localStorage.setItem('token', JSON.stringify(resposne.data.token))
+      getUser(user.username)
+    })
+    .catch(() => {
+      errorMessage.value = 'Invalid credentials'
+    })
 }
 
-// const createTodo = async (todo) => {
-//   try {
-//     const res = await create_todo(todo)
-//     if (res.data) {
-//       console.log(res.data)
-//       getTodos()
-//     } else console.log(res.data)
-//   } catch (error) {
-//     handleError(error)
-//   }
-// }
-
-// const editItem = (index) => {
-//   editingIndex.value = index
-// }
-
-// const saveItem = async (name, id) => {
-//   try {
-//     if (name.trim() !== '') {
-//       const payload = { name: name }
-//       const res = await update_todo(id, payload)
-//       if (res.data) {
-//         console.log(res.data)
-//         getTodos()
-//         editingIndex.value = null
-//       } else return
-//     }
-//   } catch (error) {
-//     handleError(error)
-//   }
-// }
-
-const userLogin = async (user) => {
-  try {
-    const res = await user_login(user)
-
-    if (res.data && res.data.token) {
-      const token = res.data.token
-      localStorage.setItem('token', JSON.stringify(token))
-      getUser(user.username)
-    } else throw new Error('Token not found')
-    return user
-  } catch (error) {
-    const { response } = error
-    if (error.response && error.response.status === 401) {
-      console.warn('Error 401: UNAUTHORIZED')
-      errorMessage.value = response.data.msg
-    } else {
-      console.log(error.message)
+const getUser = (login) => {
+  get_user(login)
+    .then((response) => {
+      localStorage.setItem('username', response.data.user)
+      location.href = '/'
+    })
+    .catch((error) => {
+      errorHandler(error)
       dialogTitle.value = 'Something got wrong'
       dialog.value = true
-    }
-  }
+      console.log(error.message)
+    })
 }
 
-const getUser = async (login) => {
-  try {
-    const res = await get_user(login)
-    if (res.data && res.data.user) {
-      localStorage.setItem('username', res.data.user)
-      location.href = '/welcome'
-    } else throw new Error('User not found')
-  } catch (error) {
-    dialogTitle.value = 'Something got wrong'
-    dialog.value = true
-    console.log(error.message)
-  }
-}
-
-const logout = async () => {
-  try {
-    const res = await user_logout({})
-    if (res.data) {
-      console.log('logout')
-    } else throw new Error('Erro')
-  } catch (error) {
-    console.log(error.message)
-  }
+const logout = () => {
+  user_logout({})
+    .then((response) => console.log(response.data))
+    .catch((error) => errorHandler(error))
   localStorage.removeItem('token')
   localStorage.removeItem('username')
   location.href = '/'
@@ -186,7 +109,7 @@ const sessionExpired = () => {
   dialog.value = true
 }
 
-const handleError = (error) => {
+const errorHandler = (error) => {
   const { response } = error
   if (response && response.status === 401) {
     sessionExpired()
