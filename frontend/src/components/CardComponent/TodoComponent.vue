@@ -24,7 +24,7 @@
             density="compact"
             hide-details
             :class="{ done: i.done }"
-            @change="() => updateItem(i)"
+            @change="() => $emit('update-item')"
             :append-icon="IconCross"
             @click:append="deleteItem(i._id)"
           >
@@ -35,7 +35,7 @@
           <div>
             <span>Tasks: {{ todos.filter((task) => task.done == false).length }}</span>
           </div>
-          <v-btn :icon="IconGarbage" variant="plain" @click="clearTodos"></v-btn>
+          <v-btn :icon="IconGarbage" variant="plain" @click="$emit('clearList')"></v-btn>
         </div>
       </div>
     </v-sheet>
@@ -47,7 +47,7 @@ import IconAdd from '../icons/IconAdd.vue'
 import IconCross from '../icons/IconCross.vue'
 import IconGarbage from '../icons/IconGarbage.vue'
 import { ref } from 'vue'
-const emit = defineEmits(['add-item', 'update-item', 'delete-item', 'delete-all'])
+const emit = defineEmits(['add-item', 'update-item', 'delete-item', 'clearList'])
 
 defineProps({
   todos: {
@@ -66,16 +66,7 @@ const addItem = () => {
   }
 }
 
-const updateItem = (task) => {
-  emit('update-item', task)
-}
-
-const deleteItem = (id) => {
-  emit('delete-item', id)
-}
-const clearTodos = () => {
-  emit('delete-all', true)
-}
+const deleteItem = (id) => emit('delete-item', id)
 </script>
 
 <style scoped>
