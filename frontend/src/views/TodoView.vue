@@ -5,7 +5,7 @@
       @add-item="addItem"
       @update-item="updateItem"
       @delete-item="deleteItem"
-      @delete-all="deleteAll"
+      @clearList="deleteAll"
     />
     <DialogExludeComponent @delete-confirm="exclude" />
   </v-container>
@@ -53,100 +53,46 @@ onUpdated(() => {
     location.href = '/'
   }
 })
-const addItem = async (item) => {
-  try {
-    const task = { task: item, done: false, todo_id: route.params.id }
-    const res = await new_task(task)
-    if (res.data) {
-      getTodos()
-    }
-  } catch (error) {
-    handleError(error)
-  }
+const addItem = (item) => {
+  const task = { task: item, done: false, todo_id: route.params.id }
+  new_task(task)
+    .then(() => getTodos())
+    .catch((error) => handleError(error))
 }
-const getTodos = async () => {
-  try {
-    const res = await get_tasks(route.params.id)
-    if (res.data && res.data.tasks) {
-      todos.splice(0, todos.length, ...res.data.tasks)
-    } else throw new Error('Error fetching data')
-  } catch (error) {
-    handleError(error)
-  }
-}
-const setTodos = () => {
-  localStorage.setItem('task', JSON.stringify(todos))
-}
-const updateItem = async (task) => {
-  if (localStorage.getItem('token')) {
-    try {
-      const res = await update_task(task._id, { done: task.done })
-      if (res.data) {
-        console.log(res.data.msg)
-        getTodos()
-      }
-    } catch (error) {
-      handleError(error)
-    }
-  } else setTodos()
+const getTodos = () => {
+  get_tasks(route.params.id)
+    .then((response) => {
+      todos.splice(0, todos.length, ...response.data.tasks)
+    })
+    .catch((error) => handleError(error))
 }
 
-const deleteItem = async (id) => {
-  if (localStorage.getItem('token')) {
-    try {
-      const res = await delete_task(id)
-      if (res.data) {
-        console.log(res.data.msg)
-        getTodos()
-      }
-    } catch (error) {
-      handleError(error)
-    }
-  } else {
-    const index = todos.findIndex((i) => i._id == id)
-    todos.splice(index, 1)
-    setTodos()
-  }
+const updateItem = (task) => {
+  update_task(task._id, { done: task.done })
+    .then(() => getTodos())
+    .catch((error) => handleError(error))
 }
 
-const deleteAll = async (value) => {
-  if (localStorage.getItem('token')) {
-    try {
-      const res = await delete_all(route.params.id)
-      if (res.data) {
-        getTodos()
-      }
-    } catch (error) {
-      handleError(error)
-    }
-  } else if (value) {
-    todos.splice(0, todos.length)
-    setTodos()
-  }
+const deleteItem = (id) => {
+  delete_task(id)
+    .then(() => getTodos())
+    .catch((error) => handleError(error))
 }
 
-const exclude = async () => {
-  const res = await delete_todo(route.params.id)
-
-  try {
-    if (res.data) {
-      console.log(res.data.msg)
-      window.location.href = '/user-info'
-    }
-  } catch (error) {
-    handleError(error)
-  }
+const deleteAll = () => {
+  delete_all(route.params.id)
+    .then(() => getTodos())
+    .catch((error) => handleError(error))
 }
 
-const logout = async () => {
-  try {
-    const res = await user_logout({})
-    if (res.data) {
-      console.log('logout')
-    } else throw new Error('Erro')
-  } catch (error) {
-    console.log(error.message)
-  }
+const exclude = () => {
+  delete_todo(route.params.id)
+    .then(() => (window.location.href = '/user-info'))
+    .catch((error) => handleError(error))
+}
+
+const logout = () => {
+  user_logout({})
   localStorage.removeItem('token')
   localStorage.removeItem('username')
 

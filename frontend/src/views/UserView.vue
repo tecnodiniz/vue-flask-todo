@@ -32,13 +32,16 @@
       @update-todo="updateTodo"
     />
   </v-container>
+
+  <DialogComponent :msg="dialogTitle" :text="dialogText" :dialog="erro" @close="logout" />
 </template>
 
 <script setup>
 import TodoDataIteratorComponent from '@/components/TodoDataIteratorComponent.vue'
+import DialogComponent from '@/components/DialogComponent.vue'
 import TodoForm from '@/components/TodoForm.vue'
 
-import { get_user_info, create_todo, delete_todo, update_todo } from '@/services/api'
+import { get_user_info, create_todo, delete_todo, update_todo, user_logout } from '@/services/api'
 import { computed, onMounted, ref } from 'vue'
 
 const userInfo = ref({ info: {} })
@@ -46,7 +49,9 @@ const username = computed(() => localStorage.getItem('username') || '')
 
 const hasTodo = computed(() => !!userInfo.value.info.todo?.length)
 const dialog = ref(false)
-
+const erro = ref(false)
+const dialogTitle = ref('')
+const dialogText = ref('')
 onMounted(() => handleAuth())
 
 const getToken = () => localStorage.getItem('token')
@@ -62,7 +67,7 @@ const getUserInfo = () => {
     .then((response) => {
       userInfo.value = { ...response.data }
     })
-    .catch((error) => console.log(error))
+    .catch((error) => handleError(error))
 }
 
 const createTodo = (todo) => {
@@ -72,17 +77,44 @@ const createTodo = (todo) => {
       getUserInfo()
       dialog.value = false
     })
-    .catch((error) => console.log(error))
+    .catch((error) => handleError(error))
 }
 
 const updateTodo = (todo) => {
   update_todo(todo.id, { name: todo.name })
     .then(() => getUserInfo())
-    .catch((error) => console.log(error))
+    .catch((error) => handleError(error))
 }
 const deleteTodo = (id) => {
   delete_todo(id)
     .then(() => getUserInfo())
-    .catch((error) => console.log(error))
+    .catch((error) => handleError(error))
+}
+
+const sessionExpired = () => {
+  console.warn('Error 401: UNAUTHORIZED')
+  dialogTitle.value = 'Session Expired'
+  dialogText.value = 'Your session has been expired, please login again'
+  erro.value = true
+}
+
+const logout = () => {
+  user_logout({})
+  localStorage.removeItem('token')
+  localStorage.removeItem('username')
+
+  location.href = '/'
+}
+
+const handleError = (error) => {
+  const { response } = error
+  if (response && response.status === 401) {
+    sessionExpired()
+    console.log(response.data.msg)
+  } else {
+    console.log(error.message)
+    dialogTitle.value = 'Something got wrong'
+    erro.value = true
+  }
 }
 </script>
