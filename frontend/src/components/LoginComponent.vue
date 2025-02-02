@@ -107,6 +107,7 @@ const emitUser = () => {
 }
 
 const newUser = async (data) => {
+  console.log(data)
   try {
     console.log(data)
     const res = await create_user(data)

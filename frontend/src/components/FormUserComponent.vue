@@ -99,17 +99,16 @@ const form = ref({
   },
 })
 
+const createPayload = ({ username, login, password }) => ({
+  name: username,
+  user_login: login,
+  pwd: password,
+})
 const emitUser = () => {
-  if (form.value.valid) {
-    const payload = {
-      name: form.value.username,
-      user_login: form.value.login,
-      pwd: form.value.password,
-    }
-    form.value.username = ''
-    form.value.login = ''
-    form.value.password = ''
-    emit('new-user', payload)
-  }
+  const payload = form.value.valid ? createPayload(form.value) : null
+  form.value.username = ''
+  form.value.login = ''
+  form.value.password = ''
+  emit('new-user', payload)
 }
 </script>

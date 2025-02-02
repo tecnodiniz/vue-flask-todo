@@ -24,7 +24,7 @@
             density="compact"
             hide-details
             :class="{ done: i.done }"
-            @change="() => $emit('update-item')"
+            @change="() => $emit('update-item', i)"
             :append-icon="IconCross"
             @click:append="deleteItem(i._id)"
           >

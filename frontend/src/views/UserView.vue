@@ -21,13 +21,7 @@
 
     <div class="ma-4" v-if="!hasTodo">
       Tips: Click on blue
-      <v-btn
-        class="ma-4"
-        icon="mdi-plus"
-        color="indigo"
-        size="40"
-        @click="dialog = !dialog"
-      ></v-btn>
+      <v-btn class="ma-4" icon="mdi-plus" color="indigo" size="40" @click="dialog = true"></v-btn>
       to create a todo list
     </div>
     <div class="ma-4" v-else>Tips: Double click on list name to edit</div>
@@ -72,10 +66,11 @@ const getUserInfo = () => {
 }
 
 const createTodo = (todo) => {
+  console.log(todo)
   create_todo(todo)
     .then(() => {
-      dialog.value = false
       getUserInfo()
+      dialog.value = false
     })
     .catch((error) => console.log(error))
 }
