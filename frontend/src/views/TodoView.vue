@@ -34,14 +34,11 @@ const dialogTitle = ref('')
 const dialogText = ref('')
 const todos = reactive([])
 const username = ref('')
-const loged = ref(false)
 const route = useRoute()
 
 onMounted(() => {
   if (localStorage.getItem('token')) {
     todos.splice(0, todos.length)
-    loged.value = true
-    username.value = localStorage.getItem('username')
     getTodos()
   } else {
     location.href = '/'
@@ -152,7 +149,7 @@ const logout = async () => {
   }
   localStorage.removeItem('token')
   localStorage.removeItem('username')
-  loged.value = false
+
   location.href = '/'
 }
 

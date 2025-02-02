@@ -15,12 +15,22 @@
 
     <TodoForm v-model:dialog="dialog" @close="dialog = false" @new-todo="createTodo" />
 
-    <div class="text-h6 ma-4">  Welcome to your todo page <span class="green"> {{ username }}</span> </div>
+    <div class="text-h6 ma-4">
+      Welcome to your todo page <span class="green"> {{ username }}</span>
+    </div>
 
-    {{  }}
-    <div class="ma-4" v-if="count === 0">Tips: Click on blue  <v-btn class="ma-4" icon="mdi-plus" color="indigo" size="40" @click="dialog = !dialog"></v-btn> to create a todo list</div>
-    <div class="ma-4" v-else>Tips: Double click on list name to edit  </div>
-
+    <div class="ma-4" v-if="!hasTodo">
+      Tips: Click on blue
+      <v-btn
+        class="ma-4"
+        icon="mdi-plus"
+        color="indigo"
+        size="40"
+        @click="dialog = !dialog"
+      ></v-btn>
+      to create a todo list
+    </div>
+    <div class="ma-4" v-else>Tips: Double click on list name to edit</div>
 
     <TodoDataIteratorComponent
       :todos="userInfo.info.todo"
@@ -35,69 +45,49 @@ import TodoDataIteratorComponent from '@/components/TodoDataIteratorComponent.vu
 import TodoForm from '@/components/TodoForm.vue'
 
 import { get_user_info, create_todo, delete_todo, update_todo } from '@/services/api'
-import { onMounted, ref } from 'vue'
-const userInfo = ref({
-  info: {},
-})
+import { computed, onMounted, ref } from 'vue'
 
-const count = ref(0)
+const userInfo = ref({ info: {} })
+const username = computed(() => localStorage.getItem('username') || '')
+
+const hasTodo = computed(() => !!userInfo.value.info.todo?.length)
 const dialog = ref(false)
-const username = ref('')
 
-onMounted(() => {
-  if (localStorage.getItem('token')) {
-    getUserInfo()
-    console.log(userInfo.value)
-  } else location.href = '/'
-})
+onMounted(() => handleAuth())
 
-const getUserInfo = async () => {
-  try {
-    const res = await get_user_info()
-    if (res && res.data) {
-      userInfo.value.info = res.data.info
-      username.value = userInfo.value.info.user.name
-      count.value = userInfo.value.info.todo.length
-    }
-  } catch (erro) {
-    console.log(erro.message)
-  }
+const getToken = () => localStorage.getItem('token')
+const redirectToHome = () => (window.location.href = '/')
+
+const handleAuth = () => {
+  const token = getToken()
+  return token ? getUserInfo() : redirectToHome()
 }
 
-const createTodo = async (todo) => {
-  try {
-    const res = await create_todo(todo)
-    if (res.data) {
-      console.log(res.data)
+const getUserInfo = () => {
+  get_user_info()
+    .then((response) => {
+      userInfo.value = { ...response.data }
+    })
+    .catch((error) => console.log(error))
+}
+
+const createTodo = (todo) => {
+  create_todo(todo)
+    .then(() => {
       dialog.value = false
       getUserInfo()
-    } else console.log(res.data)
-  } catch (error) {
-    console.log(error)
-  }
+    })
+    .catch((error) => console.log(error))
 }
 
-const updateTodo = async (todo) => {
-  try {
-    console.log(todo)
-    const res = await update_todo(todo.id, { name: todo.name })
-    if (res.data) {
-      console.log(res.data)
-      getUserInfo()
-    } else return
-  } catch (error) {
-    console.log(error)
-  }
+const updateTodo = (todo) => {
+  update_todo(todo.id, { name: todo.name })
+    .then(() => getUserInfo())
+    .catch((error) => console.log(error))
 }
-const deleteTodo = async (id) => {
-  try {
-    const res = await delete_todo(id)
-    if (res.data) {
-      console.log(res.data)
-      getUserInfo()
-    }
-  } catch (error) {
-    console.log(error)
-  }
+const deleteTodo = (id) => {
+  delete_todo(id)
+    .then(() => getUserInfo())
+    .catch((error) => console.log(error))
 }
 </script>

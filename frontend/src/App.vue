@@ -63,6 +63,7 @@ const loged = computed(() => !!token.value)
 const username = computed(() => localStorage.getItem('username') || '')
 
 const drawerR = ref(false)
+
 const dialogTitle = ref('')
 const dialogText = ref('')
 const dialog = ref(false)
@@ -83,7 +84,7 @@ const getUser = (login) => {
   get_user(login)
     .then((response) => {
       localStorage.setItem('username', response.data.user)
-      location.href = '/'
+      location.href = '/welcome'
     })
     .catch((error) => {
       errorHandler(error)
