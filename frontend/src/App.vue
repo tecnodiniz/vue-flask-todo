@@ -75,7 +75,8 @@ const userLogin = (user) => {
       localStorage.setItem('token', JSON.stringify(resposne.data.token))
       getUser(user.username)
     })
-    .catch(() => {
+    .catch((error) => {
+      console.log(error?.response.data.msg)
       errorMessage.value = 'Invalid credentials'
     })
 }

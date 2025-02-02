@@ -80,8 +80,6 @@ import FormUserComponent from './FormUserComponent.vue'
 import DialogComponent from './DialogComponent.vue'
 import { create_user } from '@/services/api'
 const dialog = ref(false)
-const loading = ref(false)
-const submit = ref(false)
 const formDone = ref(false)
 const errorMessage = ref('')
 const dialogTitle = ref('')
@@ -97,37 +95,32 @@ const form = ref({
   },
 })
 
+const createPayload = ({ login, password }) => ({
+  username: login,
+  password: password,
+})
+
 const emitUser = () => {
-  if (form.value.valid) {
-    loading.value = true
-    submit.value = true
-    const payload = { username: form.value.login, password: form.value.password }
-    emit('user-login', payload)
-  }
+  const payload = form.value.valid ? createPayload(form.value) : null
+  emit('user-login', payload)
 }
 
-const newUser = async (data) => {
-  console.log(data)
-  try {
-    console.log(data)
-    const res = await create_user(data)
-    if (res && res.data) {
-      console.log(res.data)
-      dialogTitle.value = 'User Created'
-      dialogText.value = 'User successfully created, please, login into application'
+const newUser = (data) => {
+  create_user(data)
+    .then((response) => {
+      dialogTitle.value = 'Message'
+      dialogText.value = response.data.msg
       formDone.value = true
-    }
-  } catch (error) {
-    const { response } = error
-    if (response && response.status === 409) {
-      console.log('conflito')
-      errorMessage.value = response.data.msg
-      return
-    } else {
-      console.log(error.message)
-      dialogTitle.value = 'Something got wrong'
+    })
+    .catch((error) => {
+      const response = error?.response
+      if (response?.status === 409) {
+        errorMessage.value = response.data.msg || 'Conflict error'
+        return
+      }
+
+      dialogTitle.value = 'Something went wrong'
       formDone.value = true
-    }
-  }
+    })
 }
 </script>

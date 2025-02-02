@@ -26,7 +26,7 @@
             :class="{ done: i.done }"
             @change="() => $emit('update-item', i)"
             :append-icon="IconCross"
-            @click:append="deleteItem(i._id)"
+            @click:append="$emit('delete-item', i._id)"
           >
           </v-checkbox>
         </div>
@@ -65,8 +65,6 @@ const addItem = () => {
     item.value = ''
   }
 }
-
-const deleteItem = (id) => emit('delete-item', id)
 </script>
 
 <style scoped>
